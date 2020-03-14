@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "PowerShell": {
+      "commandName": "Executable",
+      "executablePath": "pwsh",
+      "commandLineArgs": "-NoExit -Command \"& { Import-Module .\\PSStreamLogger.dll }\""
+    },
+    "Windows PowerShell": {
+      "commandName": "Executable",
+      "executablePath": "powershell",
+      "commandLineArgs": "-NoExit -Command \"& { Import-Module .\\PSStreamLogger.dll }\""
+    }
+  }
+}
