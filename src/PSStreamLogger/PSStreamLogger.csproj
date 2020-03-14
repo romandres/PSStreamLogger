@@ -3,6 +3,15 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+
+    <AssemblyName>PSStreamLogger</AssemblyName>
+    <RootNamespace>PSStreamLoggerModule</RootNamespace>
+    
+    <Version>0.1.0</Version>
+    <Authors>romandres</Authors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,6 +21,12 @@
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="PSStreamLogger.psd1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   
 </Project>

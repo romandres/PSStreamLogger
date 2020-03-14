@@ -4,7 +4,7 @@ using System.Management.Automation;
 using System.Text;
 using Microsoft.Extensions.Logging;
 
-namespace PSStreamLogger
+namespace PSStreamLoggerModule
 {
     public static class DataRecordLogger
     {
@@ -13,28 +13,28 @@ namespace PSStreamLogger
 
         public static void LogRecord<T>(ILogger logger, T record)
         {
-            if (logger is null)
+            if (record is null)
             {
-                throw new ArgumentNullException(nameof(logger));
+                throw new ArgumentNullException(nameof(record));
             }
 
-            if (typeof(T) == typeof(VerboseRecord))
+            if (record.GetType().Equals(typeof(VerboseRecord)))
             {
                 LogVerbose(logger, record as VerboseRecord);
             }
-            else if (typeof(T) == typeof(DebugRecord))
+            else if (record.GetType().Equals(typeof(DebugRecord)))
             {
                 LogDebug(logger, record as DebugRecord);
             }
-            else if (typeof(T) == typeof(ErrorRecord))
+            else if (record.GetType().Equals(typeof(ErrorRecord)))
             {
                 LogError(logger, record as ErrorRecord);
             }
-            else if (typeof(T) == typeof(WarningRecord))
+            else if (record.GetType().Equals(typeof(WarningRecord)))
             {
                 LogWarning(logger, record as WarningRecord);
             }
-            else if (typeof(T) == typeof(InformationRecord))
+            else if (record.GetType().Equals(typeof(InformationRecord)))
             {
                 LogInformation(logger, record as InformationRecord);
             }
@@ -47,8 +47,8 @@ namespace PSStreamLogger
         private static void LogVerbose(ILogger logger, VerboseRecord verboseRecord)
         {
             string message = verboseRecord.Message;
-            string moduleName = verboseRecord.InvocationInfo.MyCommand?.ModuleName;
-            string commandName = verboseRecord.InvocationInfo.MyCommand?.Name;
+            string moduleName = verboseRecord.InvocationInfo.MyCommand.ModuleName;
+            string commandName = verboseRecord.InvocationInfo.MyCommand.Name;
             string scriptFile = verboseRecord.InvocationInfo.ScriptName;
             int scriptLine = verboseRecord.InvocationInfo.ScriptLineNumber;
 
@@ -66,8 +66,8 @@ namespace PSStreamLogger
         private static void LogDebug(ILogger logger, DebugRecord debugRecord)
         {
             string message = debugRecord.Message;
-            string moduleName = debugRecord.InvocationInfo.MyCommand?.ModuleName;
-            string commandName = debugRecord.InvocationInfo.MyCommand?.Name;
+            string moduleName = debugRecord.InvocationInfo.MyCommand.ModuleName;
+            string commandName = debugRecord.InvocationInfo.MyCommand.Name;
             string scriptFile = debugRecord.InvocationInfo.ScriptName;
             int scriptLine = debugRecord.InvocationInfo.ScriptLineNumber;
 
@@ -116,8 +116,8 @@ namespace PSStreamLogger
         {
             string message = warningRecord.Message;
             string fullyQualifiedWarningId = warningRecord.FullyQualifiedWarningId;
-            string moduleName = warningRecord.InvocationInfo.MyCommand?.ModuleName;
-            string commandName = warningRecord.InvocationInfo.MyCommand?.Name;
+            string moduleName = warningRecord.InvocationInfo.MyCommand.ModuleName;
+            string commandName = warningRecord.InvocationInfo.MyCommand.Name;
             string scriptFile = warningRecord.InvocationInfo.ScriptName;
             int scriptLine = warningRecord.InvocationInfo.ScriptLineNumber;
 
@@ -126,7 +126,7 @@ namespace PSStreamLogger
             var scope = new Dictionary<string, object>();
             scope.Add(PSInvocationInfoKey, invocationInfo);
 
-            string extendedInfo = null;
+            string? extendedInfo = null;
             if (!string.IsNullOrEmpty(fullyQualifiedWarningId))
             {
                 extendedInfo = $"{fullyQualifiedWarningId}{Environment.NewLine}";
@@ -148,8 +148,8 @@ namespace PSStreamLogger
             string targetTypeName = errorRecord.CategoryInfo.TargetType;
             string category = errorRecord.CategoryInfo.Category.ToString();
             string reason = errorRecord.CategoryInfo.Reason;
-            string errorMessage = string.IsNullOrEmpty(errorRecord.ErrorDetails?.Message) ? errorRecord.Exception?.Message : errorRecord.ErrorDetails.Message;
-            Exception ex = errorRecord.Exception;
+            string? errorMessage = string.IsNullOrEmpty(errorRecord.ErrorDetails?.Message) ? errorRecord.Exception?.Message : errorRecord.ErrorDetails?.Message;
+            Exception? ex = errorRecord.Exception;
 
             string extendedInfo = GetExtendedErrorInfo(fullyQualifiedErrorId, activity, targetName, targetTypeName, category, reason, scriptStackTrace, ex);
 
@@ -159,7 +159,7 @@ namespace PSStreamLogger
             }
         }
 
-        private static string GetInvocationInfo(string commandName, string moduleName, string scriptFile, int? lineNumber)
+        private static string GetInvocationInfo(string commandName, string? moduleName, string? scriptFile, int? lineNumber)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.Append("[");
@@ -188,7 +188,7 @@ namespace PSStreamLogger
             return stringBuilder.ToString();
         }
 
-        private static string GetExtendedErrorInfo(string fullyQualifiedErrorId, string activity, string targetName, string targetTypeName, string category, string reason, string scriptStackTrace, Exception exception)
+        private static string GetExtendedErrorInfo(string fullyQualifiedErrorId, string activity, string targetName, string targetTypeName, string category, string reason, string scriptStackTrace, Exception? exception)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.Append($"{fullyQualifiedErrorId}{Environment.NewLine}");
