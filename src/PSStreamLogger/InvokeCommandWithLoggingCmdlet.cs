@@ -10,18 +10,18 @@ namespace PSStreamLoggerModule
     public class InvokeCommandWithLoggingCmdlet : PSCmdlet, IDisposable
     {
         [Parameter(Mandatory = true)]
-        public ScriptBlock ScriptBlock { get; set; }
+        public ScriptBlock? ScriptBlock { get; set; }
 
         [Parameter(Mandatory = true)]
-        public string LogFilePath { get; set; }
+        public string? LogFilePath { get; set; }
 
         [Parameter]
         public ActionPreference DebugAction { get; set; } = ActionPreference.Inquire;
 
-        private ILoggerFactory loggerFactory;
+        private ILoggerFactory? loggerFactory;
 
-        private Microsoft.Extensions.Logging.ILogger logger;
-        private Microsoft.Extensions.Logging.ILogger scriptLogger;
+        private Microsoft.Extensions.Logging.ILogger? logger;
+        private Microsoft.Extensions.Logging.ILogger? scriptLogger;
 
         private bool isVerboseEnabled = false;
         private bool isDebugEnabled = false;
