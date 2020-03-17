@@ -1,0 +1,32 @@
+name: .NET Core
+
+on:
+  push:
+    branches: 
+      - master
+  pull_request:
+    branches: 
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.0.100
+    - name: Build with dotnet
+      run: dotnet build src/PSStreamLogger.sln --configuration Release
+    - name: Create artifact directory
+      run: mkdir -p ../artifact/psstreamlogger-psmodule
+    - name: Copy files to artifact directory
+      run: cp src/PSStreamLogger/bin/Release/netstandard2.0/*.dll src/PSStreamLogger/bin/Release/netstandard2.0/*.psd1 ../artifact/psstreamlogger-psmodule
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: PSStreamLogger-PSModule
+        path: ../artifact/psstreamlogger-psmodule
