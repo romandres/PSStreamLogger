@@ -1,4 +1,4 @@
-name: .NET Core
+name: Build
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.0.100
-    - name: Build with dotnet
+    - name: Build
       run: dotnet build src/PSStreamLogger.sln --configuration Release
     - name: Create artifact directory
       run: mkdir -p ../artifact/psstreamlogger-psmodule
