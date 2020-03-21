@@ -22,9 +22,11 @@ jobs:
     - name: Build
       run: dotnet build src/PSStreamLogger.sln --configuration Release
     - name: Create artifact directory
-      run: mkdir -p ../artifact/psstreamlogger-psmodule
+      run: New-Item -ItemType Directory -Path "../artifact/psstreamlogger-psmodule" -Force
+      shell: pwsh
     - name: Copy files to artifact directory
-      run: cp src/PSStreamLogger/bin/Release/netstandard2.0/*.dll src/PSStreamLogger/bin/Release/netstandard2.0/*.psd1 ../artifact/psstreamlogger-psmodule
+      run: Copy-Item -Path "src/PSStreamLogger/bin/Release/netstandard2.0/*" -Destination "../artifact/psstreamlogger-psmodule" -Include @("*.dll", "*.psd1")
+      shell: pwsh
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
