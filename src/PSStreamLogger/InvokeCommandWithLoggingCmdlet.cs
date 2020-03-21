@@ -81,15 +81,11 @@ namespace PSStreamLoggerModule
 
             try
             {
+                var scriptArgumentVariableName = this.Host.Version.Major >= 7 ? "$args" : "$input";
                 string newLineScriptStart = ScriptBlock.ToString().StartsWith("\n") ? string.Empty : "\n";
                 string newLineScriptEnd = ScriptBlock.ToString().EndsWith("\n") ? string.Empty : "\n";
 
-                // Use ScriptBlock
-                //var scriptBlock = InvokeCommand.NewScriptBlock($"& {{[CmdletBinding()]param() {(isDebugEnabled ? $"$DebugPreference = $args[1];" : string.Empty)}try {{ {start}{ScriptBlock}{end} }} catch {{ $PSCmdlet.ThrowTerminatingError($_); }} }}{commonParameters} *>&1 | PSStreamLogger\\Out-PSStreamLogger -Logger $args[0]{commonParameters}");
-                //var output = InvokeCommand.InvokeScript(false, scriptBlock, null, scriptLogger, DebugAction);
-
-                // Use script
-                var output = InvokeCommand.InvokeScript($"& {{[CmdletBinding()]param() {(isDebugEnabled ? $"$DebugPreference = $args[1];" : string.Empty)}try {{ {newLineScriptStart}{ScriptBlock}{newLineScriptEnd} }} catch {{ $PSCmdlet.ThrowTerminatingError($_); }} }}{commonParameters} *>&1 | PSStreamLogger\\Out-PSStreamLogger -Logger $args[0]{commonParameters}", scriptLogger);
+                var output = InvokeCommand.InvokeScript($"& {{[CmdletBinding()]param() {(isDebugEnabled ? $"$DebugPreference = {scriptArgumentVariableName}[1];" : string.Empty)}try {{ {newLineScriptStart}{ScriptBlock}{newLineScriptEnd} }} catch {{ $PSCmdlet.ThrowTerminatingError($_); }} }}{commonParameters} *>&1 | PSStreamLogger\\Out-PSStreamLogger -Logger {scriptArgumentVariableName}[0]{commonParameters}", scriptLogger, DebugAction);
 
                 // Write script output to output stream
                 WriteObject(output, true);
