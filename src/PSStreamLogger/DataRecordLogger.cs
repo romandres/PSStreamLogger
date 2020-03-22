@@ -86,7 +86,7 @@ namespace PSStreamLoggerModule
         {
             List<string> tags = informationRecord.Tags;
             object messageData = informationRecord.MessageData;
-            string scriptFile = informationRecord.Source;
+            string? scriptFile = "Write-Information".Equals(informationRecord.Source) ? null : informationRecord.Source;
 
             string invocationInfo = GetInvocationInfo(scriptFile, null, null, null);
 
@@ -159,10 +159,15 @@ namespace PSStreamLoggerModule
             }
         }
 
-        private static string GetInvocationInfo(string commandName, string? moduleName, string? scriptFile, int? lineNumber)
+        private static string GetInvocationInfo(string? commandName, string? moduleName, string? scriptFile, int? lineNumber)
         {
+            if (string.IsNullOrEmpty(commandName) && string.IsNullOrEmpty(moduleName) && string.IsNullOrEmpty(scriptFile) && !lineNumber.HasValue)
+            {
+                return string.Empty;
+            }
+
             var stringBuilder = new StringBuilder();
-            stringBuilder.Append("[");
+            stringBuilder.Append("[at ");
 
             if (!string.IsNullOrEmpty(moduleName))
             {
@@ -173,15 +178,31 @@ namespace PSStreamLoggerModule
                 stringBuilder.Append(commandName);
             }
 
+            if (string.IsNullOrEmpty(scriptFile))
+            {
+                scriptFile = "<No file>";
+            }
+
             if (!string.IsNullOrEmpty(scriptFile))
             {
-                stringBuilder.Append($"|{scriptFile}");
-
-                if (lineNumber.HasValue)
+                if (!string.IsNullOrEmpty(commandName))
                 {
-                    stringBuilder.Append($" at line: {lineNumber}");
+                    stringBuilder.Append($", ");
                 }
+
+                stringBuilder.Append(scriptFile);
             }
+
+            if (lineNumber.HasValue)
+            {
+                if (!string.IsNullOrEmpty(commandName) || !string.IsNullOrEmpty(scriptFile))
+                {
+                    stringBuilder.Append($": ");
+                }
+
+                stringBuilder.Append($"line {lineNumber}");
+            }
+            
 
             stringBuilder.Append("]");
 

@@ -18,9 +18,11 @@ namespace PSStreamLoggerModule
         [Parameter]
         public ActionPreference DebugAction { get; set; } = ActionPreference.Inquire;
 
+        [Parameter]
+        public SwitchParameter IncludeInvocationInfo { get; set; }
+
         private ILoggerFactory? loggerFactory;
 
-        private Microsoft.Extensions.Logging.ILogger? logger;
         private Microsoft.Extensions.Logging.ILogger? scriptLogger;
 
         private bool isVerboseEnabled = false;
@@ -34,20 +36,19 @@ namespace PSStreamLoggerModule
 
         protected override void BeginProcessing()
         {
+            string logFormat = $"[{{Timestamp:yyyy-MM-dd HH:mm:ss}} {{Level:u3}}] {{Message:lj}}{(IncludeInvocationInfo.IsPresent ? " {PSInvocationInfo}" : string.Empty)}{{NewLine}}{{PSExtendedInfo}}";
+
             // Configure Serilog console and file logger
             var serilogLogger = new Serilog.LoggerConfiguration()
                 .MinimumLevel.Is(Serilog.Events.LogEventLevel.Verbose)
-                .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose, "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message:lj} {PSInvocationInfo}{NewLine}{PSExtendedInfo}", formatProvider: CultureInfo.CurrentCulture).Enrich.FromLogContext()
-                .WriteTo.File(LogFilePath, Serilog.Events.LogEventLevel.Verbose, "[{Timestamp:yyyy-MM-dd HH:mm:ss} {Level:u3}] {Message:lj} {PSInvocationInfo}{NewLine}{PSExtendedInfo}", formatProvider: CultureInfo.CurrentCulture).Enrich.FromLogContext()
+                .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose, logFormat, formatProvider: CultureInfo.CurrentCulture).Enrich.FromLogContext()
+                .WriteTo.File(LogFilePath, Serilog.Events.LogEventLevel.Verbose, logFormat, formatProvider: CultureInfo.CurrentCulture).Enrich.FromLogContext()
                 .CreateLogger();
 
             loggerFactory = new LoggerFactory();
             loggerFactory.AddSerilog(serilogLogger, true);
 
-            logger = loggerFactory.CreateLogger("PSStreamLogger");
             scriptLogger = loggerFactory.CreateLogger("PSScript");
-
-            logger.LogTrace("Invoke-CommandWithLogging started");
 
             if (MyInvocation.BoundParameters.ContainsKey("Verbose") && ((SwitchParameter)MyInvocation.BoundParameters["Verbose"]).IsPresent)
             {
@@ -94,10 +95,6 @@ namespace PSStreamLoggerModule
             {
                 DataRecordLogger.LogRecord(scriptLogger, ex.ErrorRecord);
                 ThrowTerminatingError(ex.ErrorRecord);
-            }
-            finally
-            {
-                logger.LogTrace("Invoke-CommandWithLogging finished");
             }
         }
 
