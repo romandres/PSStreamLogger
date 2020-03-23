@@ -36,7 +36,7 @@ namespace PSStreamLoggerModule
 
         protected override void BeginProcessing()
         {
-            string logFormat = $"[{{Timestamp:yyyy-MM-dd HH:mm:ss}} {{Level:u3}}] {{Message:lj}}{(IncludeInvocationInfo.IsPresent ? " {PSInvocationInfo}" : string.Empty)}{{NewLine}}{{PSExtendedInfo}}";
+            string logFormat = $"[{{Timestamp:yyyy-MM-dd HH:mm:ss.fffzz}} {{Level:u3}}] {{Message:lj}}{(IncludeInvocationInfo.IsPresent ? " {PSInvocationInfo}" : string.Empty)}{{NewLine}}{{PSExtendedInfo}}";
 
             // Configure Serilog console and file logger
             var serilogLogger = new Serilog.LoggerConfiguration()
