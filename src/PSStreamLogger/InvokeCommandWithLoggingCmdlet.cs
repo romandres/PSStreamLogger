@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Globalization;
 using System.Management.Automation;
 using Microsoft.Extensions.Logging;
@@ -33,6 +34,11 @@ namespace PSStreamLoggerModule
         private ActionPreference? errorActionPreference;
 
         private bool disposed = false;
+
+        private string? newLineScriptStart;
+        private string? newLineScriptEnd;
+        private string? scriptArgumentVariableName;
+
 
         protected override void BeginProcessing()
         {
@@ -74,6 +80,15 @@ namespace PSStreamLoggerModule
             {
                 warningActionPreference = this.MyInvocation.BoundParameters["WarningAction"] as ActionPreference?;
             }
+
+            // Determine PowerShell version the Cmdlet is running from
+            var psVersionTable = SessionState.PSVariable.GetValue("PSVersionTable") as Hashtable;
+            var psVersion = psVersionTable["PSVersion"].ToString();
+            int majorVersion = int.Parse(psVersion.Split('.')[0]);
+            scriptArgumentVariableName = majorVersion >= 6 ? "$args" : "$input";
+
+            newLineScriptStart = ScriptBlock.ToString().StartsWith("\n") ? string.Empty : "\n";
+            newLineScriptEnd = ScriptBlock.ToString().EndsWith("\n") ? string.Empty : "\n";
         }
 
         protected override void EndProcessing()
@@ -82,10 +97,6 @@ namespace PSStreamLoggerModule
 
             try
             {
-                var scriptArgumentVariableName = this.Host.Version.Major >= 7 ? "$args" : "$input";
-                string newLineScriptStart = ScriptBlock.ToString().StartsWith("\n") ? string.Empty : "\n";
-                string newLineScriptEnd = ScriptBlock.ToString().EndsWith("\n") ? string.Empty : "\n";
-
                 var output = InvokeCommand.InvokeScript($"& {{[CmdletBinding()]param() {(isDebugEnabled ? $"$DebugPreference = {scriptArgumentVariableName}[1];" : string.Empty)}try {{ {newLineScriptStart}{ScriptBlock}{newLineScriptEnd} }} catch {{ $PSCmdlet.ThrowTerminatingError($_); }} }}{commonParameters} *>&1 | PSStreamLogger\\Out-PSStreamLogger -Logger {scriptArgumentVariableName}[0]{commonParameters}", scriptLogger, DebugAction);
 
                 // Write script output to output stream
