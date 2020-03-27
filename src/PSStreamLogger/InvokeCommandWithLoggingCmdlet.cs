@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Globalization;
 using System.Management.Automation;
 using Microsoft.Extensions.Logging;
@@ -81,11 +80,8 @@ namespace PSStreamLoggerModule
                 warningActionPreference = this.MyInvocation.BoundParameters["WarningAction"] as ActionPreference?;
             }
 
-            // Determine PowerShell version the Cmdlet is running from
-            var psVersionTable = SessionState.PSVariable.GetValue("PSVersionTable") as Hashtable;
-            var psVersion = psVersionTable["PSVersion"].ToString();
-            int majorVersion = int.Parse(psVersion.Split('.')[0]);
-            scriptArgumentVariableName = majorVersion >= 6 ? "$args" : "$input";
+            // Determine the variable name for script arguments (different for Windows PowerShell and PowerShell Core)
+            scriptArgumentVariableName = InvokeCommand.InvokeScript("if ($args[0]) { \"`$args\" } else { \"`$input\" }", new bool[] { true })[0].BaseObject.ToString();
 
             newLineScriptStart = ScriptBlock.ToString().StartsWith("\n") ? string.Empty : "\n";
             newLineScriptEnd = ScriptBlock.ToString().EndsWith("\n") ? string.Empty : "\n";
