@@ -8,8 +8,8 @@ namespace PSStreamLoggerModule
 {
     public static class DataRecordLogger
     {
-        private const string PSExtendedInfoKey = "PSExtendedInfo";
-        private const string PSInvocationInfoKey = "PSInvocationInfo";
+        public const string PSExtendedInfoKey = "PSExtendedInfo";
+        public const string PSInvocationInfoKey = "PSInvocationInfo";
 
         public static void LogRecord<T>(ILogger logger, T record) =>
             GetLogAction(logger, record).Invoke();
