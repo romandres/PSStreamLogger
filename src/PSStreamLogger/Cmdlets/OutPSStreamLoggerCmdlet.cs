@@ -16,19 +16,13 @@ namespace PSStreamLoggerModule
         {
             try
             {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                var objectType = InputObject.BaseObject.GetType();
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-
-                if (objectType.Equals(typeof(ErrorRecord))
-                    || objectType.Equals(typeof(WarningRecord))
-                    || objectType.Equals(typeof(InformationRecord))
-                    || objectType.Equals(typeof(VerboseRecord))
-                    || objectType.Equals(typeof(DebugRecord)))
+#pragma warning disable CS8602 // Dereference of a possibly null reference. InputObject cannot be null because the parameter is mandatory.
+                if (DataRecordLogger.IsLogRecord(InputObject.BaseObject))
+#pragma warning restore CS8602 // Dereference of a possibly null reference. InputObject cannot be null because the parameter is mandatory.
                 {
-#pragma warning disable CS8604 // Possible null reference argument.
+#pragma warning disable CS8604 // Possible null reference argument. Logger cannot be null because the parameter is mandatory.
                     DataRecordLogger.LogRecord(Logger, InputObject.BaseObject);
-#pragma warning restore CS8604 // Possible null reference argument.
+#pragma warning restore CS8604 // Possible null reference argument. Logger cannot be null because the parameter is mandatory.
                 }
                 else
                 {

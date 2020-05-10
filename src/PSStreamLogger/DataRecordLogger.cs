@@ -11,6 +11,22 @@ namespace PSStreamLoggerModule
         public const string PSExtendedInfoKey = "PSExtendedInfo";
         public const string PSInvocationInfoKey = "PSInvocationInfo";
 
+        public static bool IsLogRecord<T>(T record)
+        {
+            if (record is null)
+            {
+                throw new ArgumentNullException(nameof(record));
+            }
+
+            var recordType = record.GetType();
+
+            return recordType.Equals(typeof(ErrorRecord))
+                    || recordType.Equals(typeof(WarningRecord))
+                    || recordType.Equals(typeof(InformationRecord))
+                    || recordType.Equals(typeof(VerboseRecord))
+                    || recordType.Equals(typeof(DebugRecord));
+        }
+
         public static void LogRecord<T>(ILogger logger, T record) =>
             GetLogAction(logger, record).Invoke();
 
