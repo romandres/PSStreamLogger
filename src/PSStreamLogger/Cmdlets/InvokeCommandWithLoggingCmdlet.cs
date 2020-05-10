@@ -40,22 +40,28 @@ namespace PSStreamLoggerModule
 
         private DataRecordLogger? dataRecordLogger;
 
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    loggerFactory?.Dispose();
+                }
+
+                disposed = true;
+            }
+        }
+
         protected override void BeginProcessing()
         {
-            string logFormat = $"[{{Timestamp:yyyy-MM-dd HH:mm:ss.fffzz}} {{Level:u3}}] {{Message:lj}}{(IncludeInvocationInfo.IsPresent ? $" {{{DataRecordLogger.PSInvocationInfoKey}}}" : string.Empty)}{{NewLine}}{{{DataRecordLogger.PSExtendedInfoKey}}}";
-
-            // Configure Serilog console and file logger
-            var serilogLogger = new Serilog.LoggerConfiguration()
-                .MinimumLevel.Is(Serilog.Events.LogEventLevel.Verbose)
-                .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose, logFormat, formatProvider: CultureInfo.CurrentCulture).Enrich.FromLogContext()
-                .WriteTo.File(LogFilePath, Serilog.Events.LogEventLevel.Verbose, logFormat, formatProvider: CultureInfo.CurrentCulture).Enrich.FromLogContext()
-                .CreateLogger();
-
-            loggerFactory = new LoggerFactory();
-            loggerFactory.AddSerilog(serilogLogger, true);
-
-            scriptLogger = loggerFactory.CreateLogger("PSScript");
-            dataRecordLogger = new DataRecordLogger(scriptLogger);
+            PrepareLogging();
 
             if (MyInvocation.BoundParameters.ContainsKey("Verbose") && ((SwitchParameter)MyInvocation.BoundParameters["Verbose"]).IsPresent)
             {
@@ -107,23 +113,22 @@ namespace PSStreamLoggerModule
             }
         }
 
-        public void Dispose()
+        private void PrepareLogging()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+            string logFormat = $"[{{Timestamp:yyyy-MM-dd HH:mm:ss.fffzz}} {{Level:u3}}] {{Message:lj}}{(IncludeInvocationInfo.IsPresent ? $" {{{DataRecordLogger.PSInvocationInfoKey}}}" : string.Empty)}{{NewLine}}{{{DataRecordLogger.PSExtendedInfoKey}}}";
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    loggerFactory?.Dispose();
-                }
+            // Configure Serilog console and file logger
+            var serilogLogger = new Serilog.LoggerConfiguration()
+                .MinimumLevel.Is(Serilog.Events.LogEventLevel.Verbose)
+                .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose, logFormat, formatProvider: CultureInfo.CurrentCulture).Enrich.FromLogContext()
+                .WriteTo.File(LogFilePath, Serilog.Events.LogEventLevel.Verbose, logFormat, formatProvider: CultureInfo.CurrentCulture).Enrich.FromLogContext()
+                .CreateLogger();
 
-                disposed = true;
-            }
+            loggerFactory = new LoggerFactory();
+            loggerFactory.AddSerilog(serilogLogger, true);
+
+            scriptLogger = loggerFactory.CreateLogger("PSScript");
+            dataRecordLogger = new DataRecordLogger(scriptLogger);
         }
     }
 }
