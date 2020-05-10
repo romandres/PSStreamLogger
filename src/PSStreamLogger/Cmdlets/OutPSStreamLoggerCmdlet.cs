@@ -12,13 +12,20 @@ namespace PSStreamLoggerModule
         [Parameter(Mandatory = true)]
         public ILogger? Logger { get; set; }
 
+        private DataRecordLogger? dataRecordLogger;
+
+        protected override void BeginProcessing()
+        {
+            dataRecordLogger = new DataRecordLogger(Logger!);
+        }
+
         protected override void ProcessRecord()
         {
             try
             {
-                if (DataRecordLogger.IsLogRecord(InputObject!.BaseObject))
+                if (dataRecordLogger!.IsLogRecord(InputObject!.BaseObject))
                 {
-                    DataRecordLogger.LogRecord(Logger!, InputObject.BaseObject);
+                    dataRecordLogger.LogRecord(InputObject.BaseObject);
                 }
                 else
                 {

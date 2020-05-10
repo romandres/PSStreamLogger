@@ -38,6 +38,7 @@ namespace PSStreamLoggerModule
         private string? newLineScriptEnd;
         private string? scriptArgumentVariableName;
 
+        private DataRecordLogger? dataRecordLogger;
 
         protected override void BeginProcessing()
         {
@@ -54,6 +55,7 @@ namespace PSStreamLoggerModule
             loggerFactory.AddSerilog(serilogLogger, true);
 
             scriptLogger = loggerFactory.CreateLogger("PSScript");
+            dataRecordLogger = new DataRecordLogger(scriptLogger);
 
             if (MyInvocation.BoundParameters.ContainsKey("Verbose") && ((SwitchParameter)MyInvocation.BoundParameters["Verbose"]).IsPresent)
             {
@@ -100,10 +102,7 @@ namespace PSStreamLoggerModule
             }
             catch (RuntimeException ex)
             {
-#pragma warning disable CS8604 // Possible null reference argument. scriptLogger cannot be null because it is assigned in BeginProcessing().
-                DataRecordLogger.LogRecord(scriptLogger, ex.ErrorRecord);
-#pragma warning restore CS8604 // Possible null reference argument. scriptLogger cannot be null because it is assigned in BeginProcessing().
-
+                dataRecordLogger!.LogRecord(ex.ErrorRecord);
                 ThrowTerminatingError(ex.ErrorRecord);
             }
         }
