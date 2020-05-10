@@ -83,8 +83,10 @@ namespace PSStreamLoggerModule
             // Determine the variable name for script arguments (different for Windows PowerShell and PowerShell Core)
             scriptArgumentVariableName = InvokeCommand.InvokeScript("if ($args[0]) { \"`$args\" } else { \"`$input\" }", new bool[] { true })[0].BaseObject.ToString();
 
-            newLineScriptStart = ScriptBlock.ToString().StartsWith("\n") ? string.Empty : "\n";
-            newLineScriptEnd = ScriptBlock.ToString().EndsWith("\n") ? string.Empty : "\n";
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+            newLineScriptStart = ScriptBlock.ToString().StartsWith("\n", StringComparison.OrdinalIgnoreCase) ? string.Empty : "\n";
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+            newLineScriptEnd = ScriptBlock.ToString().EndsWith("\n", StringComparison.OrdinalIgnoreCase) ? string.Empty : "\n";
         }
 
         protected override void EndProcessing()
@@ -100,7 +102,9 @@ namespace PSStreamLoggerModule
             }
             catch (RuntimeException ex)
             {
+#pragma warning disable CS8604 // Possible null reference argument.
                 DataRecordLogger.LogRecord(scriptLogger, ex.ErrorRecord);
+#pragma warning restore CS8604 // Possible null reference argument.
                 ThrowTerminatingError(ex.ErrorRecord);
             }
         }

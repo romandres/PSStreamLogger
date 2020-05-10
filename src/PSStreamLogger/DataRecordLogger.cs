@@ -23,7 +23,7 @@ namespace PSStreamLoggerModule
                 WarningRecord warningRecord => () => LogWarning(logger, warningRecord),
                 InformationRecord infoRecord => () => LogInformation(logger, infoRecord),
                 null => throw new ArgumentNullException(nameof(record)),
-                _ => throw new ArgumentException("Invalid record type", nameof(record))
+                _ => throw new ArgumentException(Resources.InvalidRecordType, nameof(record))
             };
 
         private static void LogVerbose(ILogger logger, VerboseRecord verboseRecord)
@@ -36,8 +36,10 @@ namespace PSStreamLoggerModule
 
             string invocationInfo = GetInvocationInfo(commandName, moduleName, scriptFile, scriptLine);
 
-            var scope = new Dictionary<string, object>();
-            scope.Add(PSInvocationInfoKey, invocationInfo);
+            var scope = new Dictionary<string, object>
+            {
+                { PSInvocationInfoKey, invocationInfo }
+            };
 
             using (logger.BeginScope(scope))
             {
@@ -55,8 +57,10 @@ namespace PSStreamLoggerModule
 
             string invocationInfo = GetInvocationInfo(commandName, moduleName, scriptFile, scriptLine);
 
-            var scope = new Dictionary<string, object>();
-            scope.Add(PSInvocationInfoKey, invocationInfo);
+            var scope = new Dictionary<string, object>
+            {
+                { PSInvocationInfoKey, invocationInfo }
+            };
 
             using (logger.BeginScope(scope))
             {
@@ -68,12 +72,14 @@ namespace PSStreamLoggerModule
         {
             List<string> tags = informationRecord.Tags;
             object messageData = informationRecord.MessageData;
-            string? scriptFile = "Write-Information".Equals(informationRecord.Source) ? null : informationRecord.Source;
+            string? scriptFile = "Write-Information".Equals(informationRecord.Source, StringComparison.OrdinalIgnoreCase) ? null : informationRecord.Source;
 
             string invocationInfo = GetInvocationInfo(scriptFile, null, null, null);
 
-            var scope = new Dictionary<string, object>();
-            scope.Add(PSInvocationInfoKey, invocationInfo);
+            var scope = new Dictionary<string, object>
+            {
+                { PSInvocationInfoKey, invocationInfo }
+            };
 
             if (tags.Count > 0)
             {
@@ -105,14 +111,14 @@ namespace PSStreamLoggerModule
 
             string invocationInfo = GetInvocationInfo(commandName, moduleName, scriptFile, scriptLine);
 
-            var scope = new Dictionary<string, object>();
-            scope.Add(PSInvocationInfoKey, invocationInfo);
+            var scope = new Dictionary<string, object>
+            {
+                { PSInvocationInfoKey, invocationInfo }
+            };
 
-            string? extendedInfo = null;
             if (!string.IsNullOrEmpty(fullyQualifiedWarningId))
             {
-                extendedInfo = $"{fullyQualifiedWarningId}{Environment.NewLine}";
-                scope.Add(PSExtendedInfoKey, extendedInfo);
+                scope.Add(PSExtendedInfoKey, $"{fullyQualifiedWarningId}{Environment.NewLine}");
             }
 
             using (logger.BeginScope(scope))
