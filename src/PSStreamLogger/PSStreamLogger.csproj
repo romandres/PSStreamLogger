@@ -12,6 +12,7 @@
     
     <Version>0.1.1</Version>
     <Authors>romandres</Authors>
+    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
