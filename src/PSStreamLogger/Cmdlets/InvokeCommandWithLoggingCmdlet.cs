@@ -15,6 +15,9 @@ namespace PSStreamLoggerModule
         [Parameter(Mandatory = true)]
         public string? LogFilePath { get; set; }
 
+        [Parameter()]
+        public int LogFileSizeLimit { get; set; } = 1073741824; // 1GB
+
         [Parameter]
         public ActionPreference DebugAction { get; set; } = ActionPreference.Inquire;
 
@@ -121,7 +124,7 @@ namespace PSStreamLoggerModule
             var serilogLogger = new Serilog.LoggerConfiguration()
                 .MinimumLevel.Is(Serilog.Events.LogEventLevel.Verbose)
                 .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose, logFormat, formatProvider: CultureInfo.CurrentCulture).Enrich.FromLogContext()
-                .WriteTo.File(LogFilePath, Serilog.Events.LogEventLevel.Verbose, logFormat, formatProvider: CultureInfo.CurrentCulture).Enrich.FromLogContext()
+                .WriteTo.File(LogFilePath, Serilog.Events.LogEventLevel.Verbose, logFormat, formatProvider: CultureInfo.CurrentCulture, rollOnFileSizeLimit: true, fileSizeLimitBytes: LogFileSizeLimit).Enrich.FromLogContext()
                 .CreateLogger();
 
             loggerFactory = new LoggerFactory();
