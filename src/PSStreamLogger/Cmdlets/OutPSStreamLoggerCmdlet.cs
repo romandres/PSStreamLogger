@@ -23,9 +23,9 @@ namespace PSStreamLoggerModule
         {
             try
             {
-                if (dataRecordLogger!.IsLogRecord(InputObject!.BaseObject))
+                if (DataRecordLogger.IsLogRecord(InputObject!.BaseObject))
                 {
-                    dataRecordLogger.LogRecord(InputObject.BaseObject);
+                    dataRecordLogger!.LogRecord(InputObject.BaseObject);
                 }
                 else
                 {

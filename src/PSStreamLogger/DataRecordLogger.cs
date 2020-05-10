@@ -18,7 +18,7 @@ namespace PSStreamLoggerModule
             this.logger = logger;
         }
 
-        public bool IsLogRecord<T>(T record)
+        public static bool IsLogRecord<T>(T record)
         {
             if (record is null)
             {
@@ -170,7 +170,7 @@ namespace PSStreamLoggerModule
             }
         }
 
-        private string GetInvocationInfo(string? commandName, string? moduleName, string? scriptFile, int? lineNumber)
+        private static string GetInvocationInfo(string? commandName, string? moduleName, string? scriptFile, int? lineNumber)
         {
             if (string.IsNullOrEmpty(commandName) && string.IsNullOrEmpty(moduleName) && string.IsNullOrEmpty(scriptFile) && !lineNumber.HasValue)
             {
@@ -220,7 +220,7 @@ namespace PSStreamLoggerModule
             return stringBuilder.ToString();
         }
 
-        private string GetExtendedErrorInfo(string fullyQualifiedErrorId, string activity, string targetName, string targetTypeName, string category, string reason, string scriptStackTrace, Exception? exception)
+        private static string GetExtendedErrorInfo(string fullyQualifiedErrorId, string activity, string targetName, string targetTypeName, string category, string reason, string scriptStackTrace, Exception? exception)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.Append($"{fullyQualifiedErrorId}{Environment.NewLine}");
