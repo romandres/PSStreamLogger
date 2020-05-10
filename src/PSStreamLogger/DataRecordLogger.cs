@@ -11,38 +11,20 @@ namespace PSStreamLoggerModule
         private const string PSExtendedInfoKey = "PSExtendedInfo";
         private const string PSInvocationInfoKey = "PSInvocationInfo";
 
-        public static void LogRecord<T>(ILogger logger, T record)
-        {
-            if (record is null)
-            {
-                throw new ArgumentNullException(nameof(record));
-            }
+        public static void LogRecord<T>(ILogger logger, T record) =>
+            GetLogAction(logger, record).Invoke();
 
-            if (record.GetType().Equals(typeof(VerboseRecord)))
+        private static Action GetLogAction<T>(ILogger logger, T record) =>
+            record switch
             {
-                LogVerbose(logger, record as VerboseRecord);
-            }
-            else if (record.GetType().Equals(typeof(DebugRecord)))
-            {
-                LogDebug(logger, record as DebugRecord);
-            }
-            else if (record.GetType().Equals(typeof(ErrorRecord)))
-            {
-                LogError(logger, record as ErrorRecord);
-            }
-            else if (record.GetType().Equals(typeof(WarningRecord)))
-            {
-                LogWarning(logger, record as WarningRecord);
-            }
-            else if (record.GetType().Equals(typeof(InformationRecord)))
-            {
-                LogInformation(logger, record as InformationRecord);
-            }
-            else
-            {
-                throw new ArgumentException("Invalid record type", nameof(record));
-            }
-        }
+                VerboseRecord verboseRecord => () => LogVerbose(logger, verboseRecord),
+                DebugRecord debugRecord => () => LogDebug(logger, debugRecord),
+                ErrorRecord errorRecord => () => LogError(logger, errorRecord),
+                WarningRecord warningRecord => () => LogWarning(logger, warningRecord),
+                InformationRecord infoRecord => () => LogInformation(logger, infoRecord),
+                null => throw new ArgumentNullException(nameof(record)),
+                _ => throw new ArgumentException("Invalid record type", nameof(record))
+            };
 
         private static void LogVerbose(ILogger logger, VerboseRecord verboseRecord)
         {
@@ -202,7 +184,7 @@ namespace PSStreamLoggerModule
 
                 stringBuilder.Append($"line {lineNumber}");
             }
-            
+
 
             stringBuilder.Append("]");
 
