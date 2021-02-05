@@ -11,7 +11,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v1
@@ -19,16 +19,29 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.405
-    - name: Publish
-      run: dotnet publish src/PSStreamLogger.sln -c Release -o "publish"
+    - name: Publish Standard
+      run: dotnet publish src/PSStreamLogger.sln -c Release -f netstandard2.0 -o "publish-standard"
     - name: Create artifact directory
-      run: New-Item -ItemType Directory -Path "../artifact/psstreamlogger-psmodule" -Force
+      run: New-Item -ItemType Directory -Path "../artifact/psstreamlogger-psmodule-standard" -Force
       shell: pwsh
     - name: Copy files to artifact directory
-      run: Copy-Item -Path "publish/*" -Destination "../artifact/psstreamlogger-psmodule" -Include @("*.dll", "*.psd1")
+      run: Copy-Item -Path "publish-standard/*" -Destination "../artifact/psstreamlogger-psmodule-standard" -Include @("*.dll", "*.psd1")
       shell: pwsh
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
-        name: PSStreamLogger-PSModule
-        path: ../artifact/psstreamlogger-psmodule
+        name: PSStreamLogger-PSModule-Standard
+        path: ../artifact/psstreamlogger-psmodule-standard
+    - name: Publish Full
+      run: dotnet publish src/PSStreamLogger.sln -c Release -f net472 -o "publish-full"
+    - name: Create artifact directory
+      run: New-Item -ItemType Directory -Path "../artifact/psstreamlogger-psmodule-full" -Force
+      shell: pwsh
+    - name: Copy files to artifact directory
+      run: Copy-Item -Path "publish-full/*" -Destination "../artifact/psstreamlogger-psmodule-full" -Include @("*.dll", "*.psd1")
+      shell: pwsh
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: PSStreamLogger-PSModule-Full
+        path: ../artifact/psstreamlogger-psmodule-full
