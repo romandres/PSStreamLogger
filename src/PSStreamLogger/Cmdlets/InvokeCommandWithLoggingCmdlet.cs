@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Globalization;
 using System.Management.Automation;
 using Microsoft.Extensions.Logging;
 using Serilog;
 
 namespace PSStreamLoggerModule
 {
+
     [Cmdlet(VerbsLifecycle.Invoke, "CommandWithLogging")]
     public class InvokeCommandWithLoggingCmdlet : PSCmdlet, IDisposable
     {
@@ -13,16 +13,10 @@ namespace PSStreamLoggerModule
         public ScriptBlock? ScriptBlock { get; set; }
 
         [Parameter(Mandatory = true)]
-        public string? LogFilePath { get; set; }
-
-        [Parameter()]
-        public int LogFileSizeLimit { get; set; } = 1073741824; // 1GB
+        public Serilog.Core.Logger[]? Loggers { get; set; }
 
         [Parameter]
         public ActionPreference DebugAction { get; set; } = ActionPreference.Inquire;
-
-        [Parameter]
-        public SwitchParameter IncludeInvocationInfo { get; set; }
 
         private ILoggerFactory? loggerFactory;
 
@@ -56,6 +50,10 @@ namespace PSStreamLoggerModule
                 if (disposing)
                 {
                     loggerFactory?.Dispose();
+                    foreach (var logger in Loggers!)
+                    {
+                        logger.Dispose();
+                    }
                 }
 
                 disposed = true;
@@ -118,17 +116,12 @@ namespace PSStreamLoggerModule
 
         private void PrepareLogging()
         {
-            string logFormat = $"[{{Timestamp:yyyy-MM-dd HH:mm:ss.fffzz}} {{Level:u3}}] {{Message:lj}}{(IncludeInvocationInfo.IsPresent ? $" {{{DataRecordLogger.PSInvocationInfoKey}}}" : string.Empty)}{{NewLine}}{{{DataRecordLogger.PSExtendedInfoKey}}}";
-
-            // Configure Serilog console and file logger
-            var serilogLogger = new Serilog.LoggerConfiguration()
-                .MinimumLevel.Is(Serilog.Events.LogEventLevel.Verbose)
-                .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose, logFormat, formatProvider: CultureInfo.CurrentCulture).Enrich.FromLogContext()
-                .WriteTo.File(LogFilePath, Serilog.Events.LogEventLevel.Verbose, logFormat, formatProvider: CultureInfo.CurrentCulture, rollOnFileSizeLimit: true, fileSizeLimitBytes: LogFileSizeLimit).Enrich.FromLogContext()
-                .CreateLogger();
-
             loggerFactory = new LoggerFactory();
-            loggerFactory.AddSerilog(serilogLogger, true);
+
+            foreach (var logger in Loggers!)
+            {
+                loggerFactory.AddSerilog(logger);
+            }
 
             scriptLogger = loggerFactory.CreateLogger("PSScript");
             dataRecordLogger = new DataRecordLogger(scriptLogger);

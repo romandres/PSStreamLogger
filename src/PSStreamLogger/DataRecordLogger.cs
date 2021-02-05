@@ -10,6 +10,8 @@ namespace PSStreamLoggerModule
     {
         public const string PSExtendedInfoKey = "PSExtendedInfo";
         public const string PSInvocationInfoKey = "PSInvocationInfo";
+        public const string PSErrorIdKey = "PSErrorId";
+        public const string PSErrorCommandNameKey = "PSErrorCommandName";
 
         private readonly ILogger logger;
 
@@ -153,6 +155,15 @@ namespace PSStreamLoggerModule
         private void LogError(ErrorRecord errorRecord)
         {
             string fullyQualifiedErrorId = errorRecord.FullyQualifiedErrorId;
+            string errorId = fullyQualifiedErrorId;
+            string? errorCommand = null;
+            if (fullyQualifiedErrorId.Contains(","))
+            {
+                string[] errorParts = fullyQualifiedErrorId.Split(',');
+                errorId = errorParts[0];
+                errorCommand = errorParts[1];
+            }
+
             string scriptStackTrace = errorRecord.ScriptStackTrace;
             string activity = errorRecord.CategoryInfo.Activity;
             string targetName = errorRecord.CategoryInfo.TargetName;
@@ -164,7 +175,14 @@ namespace PSStreamLoggerModule
 
             string extendedInfo = GetExtendedErrorInfo(fullyQualifiedErrorId, activity, targetName, targetTypeName, category, reason, scriptStackTrace, ex);
 
-            using (logger.BeginScope<Dictionary<string, object>>(new Dictionary<string, object>() { [PSExtendedInfoKey] = extendedInfo }))
+            var scope = new Dictionary<string, object>
+            {
+                { PSExtendedInfoKey, extendedInfo },
+                { PSErrorIdKey, errorId },
+                { PSErrorCommandNameKey, errorCommand! }
+            };
+
+            using (logger.BeginScope(scope))
             {
                 logger.LogError(ex, errorMessage);
             }
@@ -223,7 +241,7 @@ namespace PSStreamLoggerModule
         private static string GetExtendedErrorInfo(string fullyQualifiedErrorId, string activity, string targetName, string targetTypeName, string category, string reason, string scriptStackTrace, Exception? exception)
         {
             var stringBuilder = new StringBuilder();
-            stringBuilder.Append($"{fullyQualifiedErrorId}{Environment.NewLine}");
+            stringBuilder.Append($"FullyQualifiedErrorID: {fullyQualifiedErrorId}{Environment.NewLine}");
 
             if (!string.IsNullOrEmpty(activity))
             {
