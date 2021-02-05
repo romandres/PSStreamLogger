@@ -11,7 +11,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v1
@@ -20,12 +20,12 @@ jobs:
       with:
         dotnet-version: 3.1.405
     - name: Build
-      run: dotnet build src/PSStreamLogger.sln --configuration Release
+      run: dotnet publish src/PSStreamLogger.sln -c Release -o "publish"
     - name: Create artifact directory
       run: New-Item -ItemType Directory -Path "../artifact/psstreamlogger-psmodule" -Force
       shell: pwsh
     - name: Copy files to artifact directory
-      run: Copy-Item -Path "src/PSStreamLogger/bin/Release/netstandard2.0/*" -Destination "../artifact/psstreamlogger-psmodule" -Include @("*.dll", "*.psd1")
+      run: Copy-Item -Path "publish/*" -Destination "../artifact/psstreamlogger-psmodule" -Include @("*.dll", "*.psd1")
       shell: pwsh
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
