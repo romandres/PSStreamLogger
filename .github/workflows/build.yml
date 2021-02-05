@@ -11,7 +11,7 @@ on:
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v1
@@ -19,7 +19,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 3.1.405
-    - name: Build
+    - name: Publish
       run: dotnet publish src/PSStreamLogger.sln -c Release -o "publish"
     - name: Create artifact directory
       run: New-Item -ItemType Directory -Path "../artifact/psstreamlogger-psmodule" -Force
