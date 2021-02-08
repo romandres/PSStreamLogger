@@ -10,7 +10,7 @@
     <AssemblyName>PSStreamLogger</AssemblyName>
     <RootNamespace>PSStreamLoggerModule</RootNamespace>
     
-    <Version>0.3.0</Version>
+    <Version>0.4.0</Version>
     <Authors>romandres</Authors>
     <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>

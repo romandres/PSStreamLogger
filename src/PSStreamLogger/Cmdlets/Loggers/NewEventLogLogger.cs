@@ -18,11 +18,14 @@ namespace PSStreamLoggerModule
         [Parameter()]
         public string? FilterIncludeExpression { get; set; }
 
+        [Parameter()]
+        public ScriptBlock? EventIdScriptBlock { get; set; }
+
         protected override void EndProcessing()
         {
             var loggerConfiguration = new Serilog.LoggerConfiguration()
                 .MinimumLevel.Is(Serilog.Events.LogEventLevel.Verbose)
-                .WriteTo.EventLog(LogSource, LogName, outputTemplate: OutputTemplate)
+                .WriteTo.EventLog(LogSource, LogName, outputTemplate: OutputTemplate, eventIdProvider: EventIdScriptBlock is object ? new EventIdScriptBlockProvider(EventIdScriptBlock) : null)
                 .Enrich.FromLogContext();
 
             if (FilterIncludeExpression is object)
