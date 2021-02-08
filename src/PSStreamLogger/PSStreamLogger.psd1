@@ -4,7 +4,7 @@
 RootModule = 'PSStreamLogger.dll'
 
 # Version number of this module.
-ModuleVersion = '0.3.0'
+ModuleVersion = '0.4.0'
 
 # ID used to uniquely identify this module
 GUID = '18b6925b-0c8f-4a14-abfa-c90550c025d7'
