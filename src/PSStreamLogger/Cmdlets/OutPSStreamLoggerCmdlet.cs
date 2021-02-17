@@ -34,15 +34,15 @@ namespace PSStreamLoggerModule
             }
             catch (PipelineStoppedException ex)
             {
-                Logger.LogError(ex, Resources.PipelineStopped);
+                Logger.LogError(exception: ex, message: Resources.PipelineStopped, eventId: 0);
             }
             catch (PipelineClosedException ex)
             {
-                Logger.LogError(ex, Resources.PipelineClosed);
+                Logger.LogError(exception: ex, message: Resources.PipelineClosed, eventId: 0);
             }
             catch (ExitException ex)
             {
-                Logger.LogError(ex, Resources.Exited);
+                Logger.LogError(exception: ex, message: Resources.Exited, eventId: 0);
             }
         }
     }

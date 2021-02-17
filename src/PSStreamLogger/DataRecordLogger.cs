@@ -184,7 +184,7 @@ namespace PSStreamLoggerModule
 
             using (logger.BeginScope(scope))
             {
-                logger.LogError(ex, errorMessage);
+                logger.LogError(exception: ex, message: errorMessage, eventId: 0);
             }
         }
 
