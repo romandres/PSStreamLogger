@@ -33,7 +33,7 @@ jobs:
         name: PSStreamLogger-PSModule-Standard
         path: ../artifact/psstreamlogger-psmodule-standard
     - name: Publish Full
-      run: dotnet publish src/PSStreamLogger.sln -c Release -f net461 -o "publish-full"
+      run: dotnet publish src/PSStreamLogger.sln -c Release -f net48 -o "publish-full"
     - name: Create artifact directory
       run: New-Item -ItemType Directory -Path "../artifact/psstreamlogger-psmodule-full" -Force
       shell: pwsh
