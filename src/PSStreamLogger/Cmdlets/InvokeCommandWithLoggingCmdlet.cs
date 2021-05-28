@@ -31,8 +31,6 @@ namespace PSStreamLoggerModule
 
         private bool disposed = false;
 
-        private string? newLineScriptStart;
-        private string? newLineScriptEnd;
         private string? scriptArgumentVariableName;
 
         private DataRecordLogger? dataRecordLogger;
@@ -91,9 +89,6 @@ namespace PSStreamLoggerModule
 
             // Determine the variable name for script arguments (different for Windows PowerShell and PowerShell Core)
             scriptArgumentVariableName = InvokeCommand.InvokeScript("if ($args[0]) { \"`$args\" } else { \"`$input\" }", new bool[] { true })[0].BaseObject.ToString();
-
-            newLineScriptStart = ScriptBlock!.ToString().StartsWith("\n", StringComparison.OrdinalIgnoreCase) ? string.Empty : "\n";
-            newLineScriptEnd = ScriptBlock.ToString().EndsWith("\n", StringComparison.OrdinalIgnoreCase) ? string.Empty : "\n";
         }
 
         protected override void EndProcessing()
@@ -102,7 +97,7 @@ namespace PSStreamLoggerModule
 
             try
             {
-                var output = InvokeCommand.InvokeScript($"& {{[CmdletBinding()]param() {(isDebugEnabled ? $"$DebugPreference = {scriptArgumentVariableName}[1];" : string.Empty)}try {{ {newLineScriptStart}{ScriptBlock}{newLineScriptEnd} }} catch {{ $PSCmdlet.ThrowTerminatingError($_); }} }}{commonParameters} *>&1 | PSStreamLogger\\Out-PSStreamLogger -Logger {scriptArgumentVariableName}[0]{commonParameters}", scriptLogger, DebugAction);
+                var output = InvokeCommand.InvokeScript($"& {{[CmdletBinding()]param() {(isDebugEnabled ? $"$DebugPreference = {scriptArgumentVariableName}[1];" : string.Empty)}try {{ {ScriptBlock} }} catch {{ $PSCmdlet.ThrowTerminatingError($_); }} }}{commonParameters} *>&1 | PSStreamLogger\\Out-PSStreamLogger -Logger {scriptArgumentVariableName}[0]{commonParameters}", scriptLogger, DebugAction);
 
                 // Write script output to output stream
                 WriteObject(output, true);

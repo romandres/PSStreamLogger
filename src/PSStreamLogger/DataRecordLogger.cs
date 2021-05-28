@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Management.Automation;
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 
 namespace PSStreamLoggerModule
@@ -164,7 +166,10 @@ namespace PSStreamLoggerModule
                 errorCommand = errorParts[1];
             }
 
-            string scriptStackTrace = errorRecord.ScriptStackTrace;
+            // Remove the last two lines of the script stack trace which come from the InvokeCommandWithLogging cmdlet
+            var scriptStackTraceParts = Regex.Split(errorRecord.ScriptStackTrace, Environment.NewLine);
+            string scriptStackTrace = string.Join(Environment.NewLine, scriptStackTraceParts.Take(scriptStackTraceParts.Length - 2));
+
             string activity = errorRecord.CategoryInfo.Activity;
             string targetName = errorRecord.CategoryInfo.TargetName;
             string targetTypeName = errorRecord.CategoryInfo.TargetType;
