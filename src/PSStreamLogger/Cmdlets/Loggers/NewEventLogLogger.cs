@@ -21,10 +21,13 @@ namespace PSStreamLoggerModule
         [Parameter()]
         public ScriptBlock? EventIdProvider { get; set; }
 
+        [Parameter()]
+        public Serilog.Events.LogEventLevel MinimumLogLevel = Serilog.Events.LogEventLevel.Information;
+
         protected override void EndProcessing()
         {
             var loggerConfiguration = new Serilog.LoggerConfiguration()
-                .MinimumLevel.Is(Serilog.Events.LogEventLevel.Verbose)
+                .MinimumLevel.Is(MinimumLogLevel)
                 .WriteTo.EventLog(LogSource, LogName, outputTemplate: OutputTemplate, eventIdProvider: EventIdProvider is object ? new EventIdScriptBlockProvider(EventIdProvider) : null)
                 .Enrich.FromLogContext();
 

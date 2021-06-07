@@ -28,11 +28,14 @@ namespace PSStreamLoggerModule
         [Parameter()]
         public string? FilterIncludeExpression { get; set; }
 
+        [Parameter()]
+        public Serilog.Events.LogEventLevel MinimumLogLevel = Serilog.Events.LogEventLevel.Information;
+
         protected override void EndProcessing()
         {
             var loggerConfiguration = new Serilog.LoggerConfiguration()
-                .MinimumLevel.Is(Serilog.Events.LogEventLevel.Verbose)
-                .WriteTo.File(FilePath, Serilog.Events.LogEventLevel.Verbose, OutputTemplate, formatProvider: CultureInfo.CurrentCulture, fileSizeLimitBytes: FileSizeLimit, retainedFileCountLimit: RetainedFileCountLimit, rollOnFileSizeLimit: RollOnFileSizeLimit.IsPresent, rollingInterval: RollingInterval)
+                .MinimumLevel.Is(MinimumLogLevel)
+                .WriteTo.File(FilePath, MinimumLogLevel, OutputTemplate, formatProvider: CultureInfo.CurrentCulture, fileSizeLimitBytes: FileSizeLimit, retainedFileCountLimit: RetainedFileCountLimit, rollOnFileSizeLimit: RollOnFileSizeLimit.IsPresent, rollingInterval: RollingInterval)
                 .Enrich.FromLogContext();
 
             if (FilterIncludeExpression is object)

@@ -13,11 +13,14 @@ namespace PSStreamLoggerModule
         [Parameter()]
         public string? FilterIncludeExpression { get; set; }
 
+        [Parameter()]
+        public Serilog.Events.LogEventLevel MinimumLogLevel = Serilog.Events.LogEventLevel.Information;
+
         protected override void EndProcessing()
         {
             var loggerConfiguration = new Serilog.LoggerConfiguration()
-                .MinimumLevel.Is(Serilog.Events.LogEventLevel.Verbose)
-                .WriteTo.Console(Serilog.Events.LogEventLevel.Verbose, OutputTemplate, formatProvider: CultureInfo.CurrentCulture)
+                .MinimumLevel.Is(MinimumLogLevel)
+                .WriteTo.Console(MinimumLogLevel, OutputTemplate, formatProvider: CultureInfo.CurrentCulture)
                 .Enrich.FromLogContext();
 
             if (FilterIncludeExpression is object)
