@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Management.Automation;
 using Microsoft.Extensions.Logging;
+using Microsoft.PowerShell;
 using Serilog;
 
 namespace PSStreamLoggerModule
@@ -16,18 +18,14 @@ namespace PSStreamLoggerModule
         public Serilog.Core.Logger[]? Loggers { get; set; }
 
         [Parameter]
-        public ActionPreference DebugAction { get; set; } = ActionPreference.Inquire;
+        public ActionPreference DebugAction { get; set; } = ActionPreference.Continue;
+
+        [Parameter]
+        public SwitchParameter UseStreamRedirection;
 
         private ILoggerFactory? loggerFactory;
 
         private Microsoft.Extensions.Logging.ILogger? scriptLogger;
-
-        private bool isVerboseEnabled = false;
-        private bool isDebugEnabled = false;
-
-        private ActionPreference? informationActionPreference;
-        private ActionPreference? warningActionPreference;
-        private ActionPreference? errorActionPreference;
 
         private bool disposed = false;
 
@@ -62,50 +60,35 @@ namespace PSStreamLoggerModule
         {
             PrepareLogging();
 
-            if (MyInvocation.BoundParameters.ContainsKey("Verbose") && ((SwitchParameter)MyInvocation.BoundParameters["Verbose"]).IsPresent)
-            {
-                isVerboseEnabled = true;
-            }
-
-            if (MyInvocation.BoundParameters.ContainsKey("Debug") && ((SwitchParameter)this.MyInvocation.BoundParameters["Debug"]).IsPresent)
-            {
-                isDebugEnabled = true;
-            }
-
-            if (MyInvocation.BoundParameters.ContainsKey("InformationAction"))
-            {
-                informationActionPreference = this.MyInvocation.BoundParameters["InformationAction"] as ActionPreference?;
-            }
-
-            if (MyInvocation.BoundParameters.ContainsKey("ErrorAction"))
-            {
-                errorActionPreference = this.MyInvocation.BoundParameters["ErrorAction"] as ActionPreference?;
-            }
-
-            if (MyInvocation.BoundParameters.ContainsKey("WarningAction"))
-            {
-                warningActionPreference = this.MyInvocation.BoundParameters["WarningAction"] as ActionPreference?;
-            }
-
             // Determine the variable name for script arguments (different for Windows PowerShell and PowerShell Core)
             scriptArgumentVariableName = InvokeCommand.InvokeScript("if ($args[0]) { \"`$args\" } else { \"`$input\" }", new bool[] { true })[0].BaseObject.ToString();
         }
 
         protected override void EndProcessing()
         {
-            string commonParameters = $"{(isVerboseEnabled ? " -Verbose" : string.Empty)}{(isDebugEnabled ? " -Debug" : string.Empty)}{(informationActionPreference.HasValue ? $" -InformationAction {informationActionPreference}" : string.Empty)}{(warningActionPreference.HasValue ? $" -WarningAction {warningActionPreference}" : string.Empty)}{(errorActionPreference.HasValue ? $" -ErrorAction {errorActionPreference}" : string.Empty)}";
+            Func<Collection<PSObject>> exec;
+            if (UseStreamRedirection.IsPresent)
+            {
+                exec = () => { return InvokeCommand.InvokeScript($"& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger {scriptArgumentVariableName}[0]", dataRecordLogger); };
+            }
+            else
+            {
+                var currentPath = InvokeCommand.InvokeScript("Get-Location")[0].BaseObject.ToString();
+                var executionPolicy = InvokeCommand.InvokeScript("Get-ExecutionPolicy -Scope Process")[0].BaseObject as ExecutionPolicy?;
+
+                var psExec = new PowerShellExecutor(dataRecordLogger!, currentPath, executionPolicy);
+                exec = () => { return psExec.Execute(ScriptBlock!.ToString()); };
+            }
 
             try
             {
-                var output = InvokeCommand.InvokeScript($"& {{[CmdletBinding()]param() {(isDebugEnabled ? $"$DebugPreference = {scriptArgumentVariableName}[1];" : string.Empty)}try {{ {ScriptBlock} }} catch {{ $PSCmdlet.ThrowTerminatingError($_); }} }}{commonParameters} *>&1 | PSStreamLogger\\Out-PSStreamLogger -Logger {scriptArgumentVariableName}[0]{commonParameters}", scriptLogger, DebugAction);
-
-                // Write script output to output stream
+                var output = exec.Invoke();
                 WriteObject(output, true);
             }
             catch (RuntimeException ex)
             {
                 dataRecordLogger!.LogRecord(ex.ErrorRecord);
-                ThrowTerminatingError(ex.ErrorRecord);
+                throw;
             }
         }
 
@@ -118,8 +101,8 @@ namespace PSStreamLoggerModule
                 loggerFactory.AddSerilog(logger);
             }
 
-            scriptLogger = loggerFactory.CreateLogger("PSScript");
-            dataRecordLogger = new DataRecordLogger(scriptLogger);
+            scriptLogger = loggerFactory.CreateLogger("PSScriptBlock");
+            dataRecordLogger = new DataRecordLogger(scriptLogger, UseStreamRedirection.IsPresent ? 2 : 0);
         }
     }
 }

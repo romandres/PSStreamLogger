@@ -16,10 +16,13 @@ namespace PSStreamLoggerModule
         public const string PSErrorCommandNameKey = "PSErrorCommandName";
 
         private readonly ILogger logger;
+        
+        private readonly int numberOfStackTraceLinesToRemove;
 
-        public DataRecordLogger(ILogger logger)
+        public DataRecordLogger(ILogger logger, int numberOfStackTraceLinesToRemove = 0)
         {
             this.logger = logger;
+            this.numberOfStackTraceLinesToRemove = numberOfStackTraceLinesToRemove;
         }
 
         public static bool IsLogRecord<T>(T record)
@@ -166,9 +169,24 @@ namespace PSStreamLoggerModule
                 errorCommand = errorParts[1];
             }
 
-            // Remove the last two lines of the script stack trace which come from the InvokeCommandWithLogging cmdlet
-            var scriptStackTraceParts = Regex.Split(errorRecord.ScriptStackTrace, Environment.NewLine);
-            string scriptStackTrace = string.Join(Environment.NewLine, scriptStackTraceParts.Take(scriptStackTraceParts.Length - 2));
+            string? scriptStackTrace;
+            if (!string.IsNullOrEmpty(errorRecord.ScriptStackTrace))
+            {
+                if (numberOfStackTraceLinesToRemove > 0)
+                {
+                    // Remove the last two lines of the script stack trace which come from the InvokeCommandWithLogging cmdlet
+                    var scriptStackTraceParts = Regex.Split(errorRecord.ScriptStackTrace, Environment.NewLine);
+                    scriptStackTrace = string.Join(Environment.NewLine, scriptStackTraceParts.Take(scriptStackTraceParts.Length - numberOfStackTraceLinesToRemove));
+                }
+                else
+                {
+                    scriptStackTrace = errorRecord.ScriptStackTrace;
+                }
+            }
+            else
+            {
+                scriptStackTrace = null;
+            }
 
             string activity = errorRecord.CategoryInfo.Activity;
             string targetName = errorRecord.CategoryInfo.TargetName;
@@ -243,7 +261,7 @@ namespace PSStreamLoggerModule
             return stringBuilder.ToString();
         }
 
-        private static string GetExtendedErrorInfo(string fullyQualifiedErrorId, string activity, string targetName, string targetTypeName, string category, string reason, string scriptStackTrace, Exception? exception)
+        private static string GetExtendedErrorInfo(string fullyQualifiedErrorId, string activity, string targetName, string targetTypeName, string category, string reason, string? scriptStackTrace, Exception? exception)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.Append($"FullyQualifiedErrorID: {fullyQualifiedErrorId}{Environment.NewLine}");
