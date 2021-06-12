@@ -18,9 +18,6 @@ namespace PSStreamLoggerModule
         public Serilog.Core.Logger[]? Loggers { get; set; }
 
         [Parameter]
-        public ActionPreference DebugAction { get; set; } = ActionPreference.Continue;
-
-        [Parameter]
         public SwitchParameter UseStreamRedirection;
 
         private ILoggerFactory? loggerFactory;
