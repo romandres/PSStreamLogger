@@ -1,4 +1,4 @@
-# PSStreamLogger-PSModule
+# PSStreamLogger
 
 ```powershell
 Import-Module PSStreamLogger
@@ -13,3 +13,7 @@ Invoke-CommandWithLogging -ScriptBlock { & "C:\temp\script1.ps1" -Verbose -Infor
 ```powershell
 powershell.exe -Command "& { Import-Module PSStreamLogger; Invoke-CommandWithLogging -ScriptBlock { & 'C:\temp\script1.ps1' -Verbose -InformationAction Continue } -Loggers @(New-FileLogger -FilePath 'C:\temp\script1.log' -RollOnFileSizeLimit -RollingInterval Day) }"
 ```
+
+# Credits
+
+* [Serilog](https://www.serilog.net)
