@@ -18,7 +18,7 @@ namespace PSStreamLoggerModule
         public Serilog.Core.Logger[]? Loggers { get; set; }
 
         [Parameter]
-        public SwitchParameter UseStreamRedirection;
+        public SwitchParameter UseSeparateScope;
 
         private ILoggerFactory? loggerFactory;
 
@@ -64,7 +64,7 @@ namespace PSStreamLoggerModule
         protected override void EndProcessing()
         {
             Func<Collection<PSObject>> exec;
-            if (UseStreamRedirection.IsPresent)
+            if (!UseSeparateScope.IsPresent)
             {
                 exec = () => { return InvokeCommand.InvokeScript($"& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger {scriptArgumentVariableName}[0]", dataRecordLogger); };
             }
@@ -99,7 +99,7 @@ namespace PSStreamLoggerModule
             }
 
             scriptLogger = loggerFactory.CreateLogger("PSScriptBlock");
-            dataRecordLogger = new DataRecordLogger(scriptLogger, UseStreamRedirection.IsPresent ? 2 : 0);
+            dataRecordLogger = new DataRecordLogger(scriptLogger, UseSeparateScope.IsPresent ? 2 : 0);
         }
     }
 }
