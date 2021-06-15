@@ -26,7 +26,10 @@ namespace PSStreamLoggerModule
         public string OutputTemplate { get; set; } = $"[{{Timestamp:yyyy-MM-dd HH:mm:ss.fffzz}} {{Level:u3}}] {{Message:lj}}{{NewLine}}{{{DataRecordLogger.PSExtendedInfoKey}}}";
 
         [Parameter()]
-        public string? FilterIncludeExpression { get; set; }
+        public string? FilterIncludeOnlyExpression { get; set; }
+
+        [Parameter()]
+        public string? FilterExcludeExpression { get; set; }
 
         [Parameter()]
         public Serilog.Events.LogEventLevel MinimumLogLevel = Serilog.Events.LogEventLevel.Information;
@@ -38,10 +41,16 @@ namespace PSStreamLoggerModule
                 .WriteTo.File(FilePath, MinimumLogLevel, OutputTemplate, formatProvider: CultureInfo.CurrentCulture, fileSizeLimitBytes: FileSizeLimit, retainedFileCountLimit: RetainedFileCountLimit, rollOnFileSizeLimit: RollOnFileSizeLimit.IsPresent, rollingInterval: RollingInterval)
                 .Enrich.FromLogContext();
 
-            if (FilterIncludeExpression is object)
+            if (FilterIncludeOnlyExpression is object)
             {
                 loggerConfiguration = loggerConfiguration
-                    .Filter.ByIncludingOnly(FilterIncludeExpression);
+                    .Filter.ByIncludingOnly(FilterIncludeOnlyExpression);
+            }
+
+            if (FilterExcludeExpression is object)
+            {
+                loggerConfiguration = loggerConfiguration
+                    .Filter.ByExcluding(FilterExcludeExpression);
             }
 
             WriteObject(loggerConfiguration.CreateLogger());

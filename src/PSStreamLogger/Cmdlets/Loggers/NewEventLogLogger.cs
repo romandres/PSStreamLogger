@@ -16,7 +16,10 @@ namespace PSStreamLoggerModule
         public string OutputTemplate { get; set; } = $"{{Message:lj}}{{NewLine}}{{{DataRecordLogger.PSExtendedInfoKey}}}";
 
         [Parameter()]
-        public string? FilterIncludeExpression { get; set; }
+        public string? FilterIncludeOnlyExpression { get; set; }
+
+        [Parameter()]
+        public string? FilterExcludeExpression { get; set; }
 
         [Parameter()]
         public ScriptBlock? EventIdProvider { get; set; }
@@ -31,10 +34,16 @@ namespace PSStreamLoggerModule
                 .WriteTo.EventLog(LogSource, LogName, outputTemplate: OutputTemplate, eventIdProvider: EventIdProvider is object ? new EventIdScriptBlockProvider(EventIdProvider) : null)
                 .Enrich.FromLogContext();
 
-            if (FilterIncludeExpression is object)
+            if (FilterIncludeOnlyExpression is object)
             {
                 loggerConfiguration = loggerConfiguration
-                    .Filter.ByIncludingOnly(FilterIncludeExpression);
+                    .Filter.ByIncludingOnly(FilterIncludeOnlyExpression);
+            }
+
+            if (FilterExcludeExpression is object)
+            {
+                loggerConfiguration = loggerConfiguration
+                    .Filter.ByExcluding(FilterExcludeExpression);
             }
 
             WriteObject(loggerConfiguration.CreateLogger());
