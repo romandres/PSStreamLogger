@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
+using System.Management.Automation.Runspaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.PowerShell;
 using Serilog;
@@ -68,7 +70,7 @@ namespace PSStreamLoggerModule
             {
                 exec = () =>
                 {
-                    return InvokeCommand.InvokeScript($"& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger {scriptArgumentVariableName}[0]", dataRecordLogger);
+                    return InvokeCommand.InvokeScript($"& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger {scriptArgumentVariableName}[0]", false, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
                 };
             }
             else
