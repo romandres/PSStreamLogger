@@ -117,16 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Exited" xml:space="preserve">
-    <value>Exited.</value>
-  </data>
   <data name="InvalidRecordType" xml:space="preserve">
     <value>Invalid record type.</value>
-  </data>
-  <data name="PipelineClosed" xml:space="preserve">
-    <value>Pipeline closed.</value>
-  </data>
-  <data name="PipelineStopped" xml:space="preserve">
-    <value>Pipeline stopped.</value>
   </data>
 </root>

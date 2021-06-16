@@ -61,38 +61,11 @@ namespace PSStreamLoggerModule {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Exited..
-        /// </summary>
-        internal static string Exited {
-            get {
-                return ResourceManager.GetString("Exited", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Invalid record type..
         /// </summary>
         internal static string InvalidRecordType {
             get {
                 return ResourceManager.GetString("InvalidRecordType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Pipeline closed..
-        /// </summary>
-        internal static string PipelineClosed {
-            get {
-                return ResourceManager.GetString("PipelineClosed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Pipeline stopped..
-        /// </summary>
-        internal static string PipelineStopped {
-            get {
-                return ResourceManager.GetString("PipelineStopped", resourceCulture);
             }
         }
     }
