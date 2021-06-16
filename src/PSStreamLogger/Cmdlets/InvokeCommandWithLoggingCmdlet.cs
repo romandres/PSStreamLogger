@@ -66,15 +66,24 @@ namespace PSStreamLoggerModule
             Func<Collection<PSObject>> exec;
             if (!UseSeparateScope.IsPresent)
             {
-                exec = () => { return InvokeCommand.InvokeScript($"& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger {scriptArgumentVariableName}[0]", dataRecordLogger); };
+                exec = () =>
+                {
+                    return InvokeCommand.InvokeScript($"& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger {scriptArgumentVariableName}[0]", dataRecordLogger);
+                };
             }
             else
             {
+                // Get current directory
                 var currentPath = InvokeCommand.InvokeScript("Get-Location")[0].BaseObject.ToString();
+                // Get current execution policy
                 var executionPolicy = InvokeCommand.InvokeScript("Get-ExecutionPolicy -Scope Process")[0].BaseObject as ExecutionPolicy?;
 
                 var psExec = new PowerShellExecutor(dataRecordLogger!, currentPath, executionPolicy);
-                exec = () => { return psExec.Execute(ScriptBlock!.ToString()); };
+
+                exec = () =>
+                {
+                    return psExec.Execute(ScriptBlock!.ToString());
+                };
             }
 
             try
@@ -99,7 +108,7 @@ namespace PSStreamLoggerModule
             }
 
             scriptLogger = loggerFactory.CreateLogger("PSScriptBlock");
-            dataRecordLogger = new DataRecordLogger(scriptLogger, UseSeparateScope.IsPresent ? 2 : 0);
+            dataRecordLogger = new DataRecordLogger(scriptLogger, UseSeparateScope.IsPresent ? 0 : 2);
         }
     }
 }
