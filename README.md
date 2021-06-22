@@ -10,6 +10,13 @@ The PSStreamLogger module enriches the log output with the data available from t
 
 Download the latest module version and store it into a PowerShell module directory on the system you'll use it so you'll be able to import it.
 
+### Which version to use?
+
+* Standard (recommended version)  
+The standard version of this module is based on .NET Standard and will work on both PowerShell 7.x and Windows Powershell 5.1.
+* Full  
+The full version of this module is based on .NET Framework 4.8 and will only work on Windows PowerShell 5.1. Only use this version if you need to log to the Windows EventLog using Windows PowerShell. Every other case works well with the standard version.
+
 ## Usage
 
 Configure the log module and invoke a script inside a wrapper script.
