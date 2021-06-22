@@ -1,10 +1,21 @@
 # PSStreamLogger
 
-This module allows you to log the data of [PowerShell streams](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_output_streams) into multiple log targets.
+This module allows you to use the built-in functionality of [PowerShell streams](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_output_streams) to log data and output it into multiple log targets.
 
-While you can use [stream redirection](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_redirection) to redirect the streams messages into a plain text file for example, some information available in the streams are missing from that output.
+Use the PowerShell `Write-*` cmdlets to write into PowerShell streams in your scripts and modules like this:
 
-The PSStreamLogger module enriches the log output with the data available from the streams.
+```powershell
+Write-Error "Error message"
+Write-Warning "Warning message"
+Write-Information -MessageData "Information message"
+Write-Host "Information message" # Write-Host writes into the information stream
+Write-Debug "Debug message"
+Write-Verbose "Verbose message"
+```
+
+And use the PSStreamLogger to log this data into log files or other targets.
+
+Scripts and modules that already write into PowerShell streams do not have to be updated and can just be invoked through the PSStreamLogger.
 
 ## Installation
 
