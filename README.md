@@ -24,7 +24,7 @@ Download the latest module version and store it into a PowerShell module directo
 ### Which version to use?
 
 * Standard (recommended version)  
-The standard version of this module is based on .NET Standard and will work on both PowerShell 7.x and Windows Powershell 5.1.
+The standard version of this module is based on .NET Standard and will work on both PowerShell 7.x and Windows PowerShell 5.1.
 * Full  
 The full version of this module is based on .NET Framework 4.8 and will only work on Windows PowerShell 5.1. Only use this version if you need to log to the Windows EventLog using Windows PowerShell. Every other case works well with the standard version.
 
