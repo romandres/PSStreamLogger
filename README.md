@@ -13,7 +13,7 @@ Write-Debug "Debug message"
 Write-Verbose "Verbose message"
 ```
 
-And use the PSStreamLogger to log this data into log files or other targets.
+And use the PSStreamLogger to log this data into log files or other log targets.
 
 Scripts and modules that already write into PowerShell streams do not have to be updated and can just be invoked through the PSStreamLogger.
 
@@ -23,14 +23,14 @@ Download the latest module version and store it into a PowerShell module directo
 
 ### Which version to use?
 
-* Standard (recommended version)  
-The standard version of this module is based on .NET Standard and will work on both PowerShell 7.x and Windows PowerShell 5.1.
-* Full  
-The full version of this module is based on .NET Framework 4.8 and will only work on Windows PowerShell 5.1. Only use this version if you need to log to the Windows EventLog using Windows PowerShell. Every other case works well with the standard version.
+* Standard (**recommended version**)  
+The standard version of this module is based on .NET Standard 2.0 and will work on both PowerShell 7.x and Windows PowerShell 5.1. To use this version with Windows PowerShell 5.1 at least .NET Framework 4.7.2 must be installed.
+* Full (Windows-only version based on the .NET Framework)  
+This version of the module is based on .NET Framework 4.8 and will only work on Windows and Windows PowerShell 5.1. Only use this version if you need to log to the Windows EventLog using Windows PowerShell. Every other case, including logging to the Windows EventLog using PowerShell 7.x, works well with the standard version.
 
 ## Usage
 
-Configure the log module and invoke a script inside a wrapper script.
+Configure the log module and invoke a script inside a wrapper script:
 
 ```powershell
 Import-Module PSStreamLogger
@@ -40,6 +40,18 @@ $fileLogger = New-FileLogger -FilePath "C:\temp\script1.log"
 
 # Execute script with logger
 Invoke-CommandWithLogging -ScriptBlock { & "C:\temp\script1.ps1" -Verbose -InformationAction Continue } -Loggers @($fileLogger)
+```
+
+You can also directly execute commands in the script block without calling an external script:
+
+```powershell
+...
+
+# Execute commands with logger
+Invoke-CommandWithLogging -ScriptBlock {
+    Write-Verbose "Creating file" -Verbose
+    New-Item -Path "C:\temp\file1.txt" -Type File
+} -Loggers @($fileLogger)
 ```
 
 Configure the log module and invoke a script in one line in PowerShell:
