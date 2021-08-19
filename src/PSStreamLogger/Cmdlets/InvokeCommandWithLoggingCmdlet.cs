@@ -28,8 +28,6 @@ namespace PSStreamLoggerModule
 
         private bool disposed = false;
 
-        private string? scriptArgumentVariableName;
-
         private DataRecordLogger? dataRecordLogger;
 
         public void Dispose()
@@ -58,9 +56,6 @@ namespace PSStreamLoggerModule
         protected override void BeginProcessing()
         {
             PrepareLogging();
-
-            // Determine the variable name for script arguments (different for Windows PowerShell and PowerShell Core)
-            scriptArgumentVariableName = InvokeCommand.InvokeScript("if ($args[0]) { \"`$args\" } else { \"`$input\" }", new bool[] { true })[0].BaseObject.ToString();
         }
 
         protected override void EndProcessing()
@@ -70,7 +65,7 @@ namespace PSStreamLoggerModule
             {
                 exec = () =>
                 {
-                    return InvokeCommand.InvokeScript($"& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger {scriptArgumentVariableName}[0]", false, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
+                    return InvokeCommand.InvokeScript($"& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger $input[0]", false, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
                 };
             }
             else
