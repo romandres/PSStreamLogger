@@ -15,8 +15,6 @@
 				'PSEdition_Desktop'
 				'PSEdition_Core'
 				'Windows'
-				# 'Linux' -> needs to be tested
-				# 'MacOS' -> needs to be tested
 			)
 		}
 	}
