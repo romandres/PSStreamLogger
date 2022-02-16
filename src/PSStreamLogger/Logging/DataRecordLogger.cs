@@ -16,7 +16,7 @@ namespace PSStreamLoggerModule
         public const string PSErrorCommandNameKey = "PSErrorCommandName";
 
         private readonly ILogger logger;
-        
+
         private readonly int numberOfStackTraceLinesToRemove;
 
         public DataRecordLogger(ILogger logger, int numberOfStackTraceLinesToRemove = 0)
@@ -256,7 +256,7 @@ namespace PSStreamLoggerModule
             }
 
 
-            stringBuilder.Append("]");
+            stringBuilder.Append(']');
 
             return stringBuilder.ToString();
         }
