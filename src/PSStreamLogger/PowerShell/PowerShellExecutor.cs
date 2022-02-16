@@ -6,7 +6,7 @@ using Microsoft.PowerShell;
 
 namespace PSStreamLoggerModule
 {
-    internal class PowerShellExecutor
+    internal class PowerShellExecutor : IDisposable
     {
         private readonly PowerShell powerShell;
 
@@ -73,8 +73,7 @@ namespace PSStreamLoggerModule
 
         private void Debug_DataAdded(object sender, DataAddedEventArgs e)
         {
-            var dataCollection = sender as PSDataCollection<DebugRecord>;
-            if (dataCollection is object)
+            if (sender is PSDataCollection<DebugRecord> dataCollection)
             {
                 dataRecordLogger.LogRecord(dataCollection[e.Index]);
             }
@@ -82,8 +81,7 @@ namespace PSStreamLoggerModule
 
         private void Error_DataAdded(object sender, DataAddedEventArgs e)
         {
-            var dataCollection = sender as PSDataCollection<ErrorRecord>;
-            if (dataCollection is object)
+            if (sender is PSDataCollection<ErrorRecord> dataCollection)
             {
                 dataRecordLogger.LogRecord(dataCollection[e.Index]);
             }
@@ -91,8 +89,7 @@ namespace PSStreamLoggerModule
 
         private void Information_DataAdded(object sender, DataAddedEventArgs e)
         {
-            var dataCollection = sender as PSDataCollection<InformationRecord>;
-            if (dataCollection is object)
+            if (sender is PSDataCollection<InformationRecord> dataCollection)
             {
                 dataRecordLogger.LogRecord(dataCollection[e.Index]);
             }
@@ -100,8 +97,7 @@ namespace PSStreamLoggerModule
 
         private void Verbose_DataAdded(object sender, DataAddedEventArgs e)
         {
-            var dataCollection = sender as PSDataCollection<VerboseRecord>;
-            if (dataCollection is object)
+            if (sender is PSDataCollection<VerboseRecord> dataCollection)
             {
                 dataRecordLogger.LogRecord(dataCollection[e.Index]);
             }
@@ -109,8 +105,7 @@ namespace PSStreamLoggerModule
 
         private void Warning_DataAdded(object sender, DataAddedEventArgs e)
         {
-            var dataCollection = sender as PSDataCollection<WarningRecord>;
-            if (dataCollection is object)
+            if (sender is PSDataCollection<WarningRecord> dataCollection)
             {
                 dataRecordLogger.LogRecord(dataCollection[e.Index]);
             }
