@@ -56,6 +56,7 @@ namespace PSStreamLoggerModule
                 _ => throw new ArgumentException(Resources.InvalidRecordType, nameof(record))
             };
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2254:Template should be a static expression", Justification = "This method is passing through log messages to the logger which is why the template cannot be static.")]
         private void LogVerbose(VerboseRecord verboseRecord)
         {
             string message = verboseRecord.Message;
@@ -77,6 +78,7 @@ namespace PSStreamLoggerModule
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2254:Template should be a static expression", Justification = "This method is passing through log messages to the logger which is why the template cannot be static.")]
         private void LogDebug(DebugRecord debugRecord)
         {
             string message = debugRecord.Message;
@@ -98,6 +100,7 @@ namespace PSStreamLoggerModule
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2254:Template should be a static expression", Justification = "This method is passing through log messages to the logger which is why the template cannot be static.")]
         private void LogInformation(InformationRecord informationRecord)
         {
             List<string> tags = informationRecord.Tags;
@@ -130,6 +133,7 @@ namespace PSStreamLoggerModule
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2254:Template should be a static expression", Justification = "This method is passing through log messages to the logger which is why the template cannot be static.")]
         private void LogWarning(WarningRecord warningRecord)
         {
             string message = warningRecord.Message;
@@ -157,6 +161,7 @@ namespace PSStreamLoggerModule
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2254:Template should be a static expression", Justification = "This method is passing through log messages to the logger which is why the template cannot be static.")]
         private void LogError(ErrorRecord errorRecord)
         {
             string fullyQualifiedErrorId = errorRecord.FullyQualifiedErrorId;
