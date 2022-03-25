@@ -1,6 +1,6 @@
-﻿using System.Globalization;
+﻿using Serilog;
+using System.Globalization;
 using System.Management.Automation;
-using Serilog;
 
 namespace PSStreamLoggerModule
 {
@@ -38,7 +38,7 @@ namespace PSStreamLoggerModule
         {
             var loggerConfiguration = new Serilog.LoggerConfiguration()
                 .MinimumLevel.Is(MinimumLogLevel)
-                .WriteTo.File(FilePath, MinimumLogLevel, OutputTemplate, formatProvider: CultureInfo.CurrentCulture, fileSizeLimitBytes: FileSizeLimit, retainedFileCountLimit: RetainedFileCountLimit, rollOnFileSizeLimit: RollOnFileSizeLimit.IsPresent, rollingInterval: RollingInterval)
+                .WriteTo.File(FilePath!, MinimumLogLevel, OutputTemplate, formatProvider: CultureInfo.CurrentCulture, fileSizeLimitBytes: FileSizeLimit, retainedFileCountLimit: RetainedFileCountLimit, rollOnFileSizeLimit: RollOnFileSizeLimit.IsPresent, rollingInterval: RollingInterval)
                 .Enrich.FromLogContext();
 
             if (FilterIncludeOnlyExpression is object)
