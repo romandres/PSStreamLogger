@@ -19,7 +19,7 @@ namespace PSStreamLoggerModule
         public Serilog.Core.Logger[]? Loggers { get; set; }
 
         [Parameter]
-        public SwitchParameter UseSeparateScope { get; set; }
+        public SwitchParameter UseSeparateSession { get; set; }
 
         private ILoggerFactory? loggerFactory;
 
@@ -68,7 +68,7 @@ namespace PSStreamLoggerModule
         protected override void EndProcessing()
         {
             Func<Collection<PSObject>> exec;
-            if (!UseSeparateScope.IsPresent)
+            if (!UseSeparateSession.IsPresent)
             {
                 exec = () =>
                 {
@@ -110,7 +110,7 @@ namespace PSStreamLoggerModule
             }
 
             scriptLogger = loggerFactory.CreateLogger("PSScriptBlock");
-            dataRecordLogger = new DataRecordLogger(scriptLogger, UseSeparateScope.IsPresent ? 0 : 2);
+            dataRecordLogger = new DataRecordLogger(scriptLogger, UseSeparateSession.IsPresent ? 0 : 2);
         }
     }
 }
