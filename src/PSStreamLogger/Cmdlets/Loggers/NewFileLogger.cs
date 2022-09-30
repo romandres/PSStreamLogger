@@ -25,7 +25,7 @@ namespace PSStreamLoggerModule
         public RollingInterval RollingInterval { get; set; } = RollingInterval.Infinite;
 
         [Parameter()]
-        public string ExpressionTemplate { get; set; } = $"[{{@t:yyyy-MM-dd HH:mm:ss.fffzz}} {{@l:u3}}] {{@m:lj}}{Environment.NewLine}{{{DataRecordLogger.PSExtendedInfoKey}}}";
+        public string ExpressionTemplate { get; set; } = $"[{{@t:yyyy-MM-dd HH:mm:ss.fffzz}} {{@l:u3}}] {{@m:lj}}{Environment.NewLine}{{{DataRecordLogger.PSErrorDetailsKey}}}";
 
         [Parameter()]
         public string? FilterIncludeOnlyExpression { get; set; }

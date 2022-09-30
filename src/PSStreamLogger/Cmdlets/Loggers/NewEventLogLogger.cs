@@ -16,7 +16,7 @@ namespace PSStreamLoggerModule
         public string? LogName { get; set; }
 
         [Parameter()]
-        public string ExpressionTemplate { get; set; } = $"{{@m:lj}}{Environment.NewLine}{{{DataRecordLogger.PSExtendedInfoKey}}}";
+        public string ExpressionTemplate { get; set; } = $"{{@m:lj}}{Environment.NewLine}{{{DataRecordLogger.PSErrorDetailsKey}}}";
 
         [Parameter()]
         public string? FilterIncludeOnlyExpression { get; set; }
