@@ -10,7 +10,7 @@ namespace PSStreamLoggerModule
     {
         private readonly PowerShell powerShell;
 
-        private bool disposed = false;
+        private bool disposed;
 
         private readonly DataRecordLogger dataRecordLogger;
 
