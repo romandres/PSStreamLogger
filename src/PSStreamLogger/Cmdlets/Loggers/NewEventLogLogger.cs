@@ -25,7 +25,7 @@ namespace PSStreamLoggerModule
         public ScriptBlock? EventIdProvider { get; set; }
 
         [Parameter()]
-        public Serilog.Events.LogEventLevel MinimumLogLevel = Serilog.Events.LogEventLevel.Information;
+        public Serilog.Events.LogEventLevel MinimumLogLevel { get; set; } = Serilog.Events.LogEventLevel.Information;
 
         protected override void EndProcessing()
         {

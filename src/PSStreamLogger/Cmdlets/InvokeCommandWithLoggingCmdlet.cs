@@ -20,15 +20,17 @@ namespace PSStreamLoggerModule
         public Serilog.Core.Logger[]? Loggers { get; set; }
 
         [Parameter]
-        public SwitchParameter UseSeparateScope;
+        public SwitchParameter UseSeparateScope { get; set; }
 
         private ILoggerFactory? loggerFactory;
 
         private Microsoft.Extensions.Logging.ILogger? scriptLogger;
 
-        private bool disposed = false;
+        private bool disposed;
 
         private DataRecordLogger? dataRecordLogger;
+
+        private PowerShellExecutor? powerShellExecutor;
 
         public void Dispose()
         {
@@ -47,6 +49,9 @@ namespace PSStreamLoggerModule
                     {
                         logger.Dispose();
                     }
+
+                    powerShellExecutor?.Dispose();
+                    powerShellExecutor = null;
                 }
 
                 disposed = true;
@@ -75,11 +80,11 @@ namespace PSStreamLoggerModule
                 // Get current execution policy
                 var executionPolicy = InvokeCommand.InvokeScript("Get-ExecutionPolicy -Scope Process")[0].BaseObject as ExecutionPolicy?;
 
-                var psExec = new PowerShellExecutor(dataRecordLogger!, currentPath, executionPolicy);
+                powerShellExecutor = new PowerShellExecutor(dataRecordLogger!, currentPath, executionPolicy);
 
                 exec = () =>
                 {
-                    return psExec.Execute(ScriptBlock!.ToString());
+                    return powerShellExecutor.Execute(ScriptBlock!.ToString());
                 };
             }
 
