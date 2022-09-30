@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
-using Microsoft.PowerShell;
 
 namespace PSStreamLoggerModule
 {
@@ -14,14 +13,9 @@ namespace PSStreamLoggerModule
 
         private readonly DataRecordLogger dataRecordLogger;
 
-        public PowerShellExecutor(DataRecordLogger dataRecordLogger, string workingDirectory, ExecutionPolicy? executionPolicy)
+        public PowerShellExecutor(DataRecordLogger dataRecordLogger, string workingDirectory)
         {
             this.dataRecordLogger = dataRecordLogger;
-
-            if (executionPolicy.HasValue)
-            {
-                Environment.SetEnvironmentVariable("PSExecutionPolicyPreference", executionPolicy.Value.ToString(), EnvironmentVariableTarget.Process);
-            }
 
             var initialSessionState = InitialSessionState.CreateDefault();
 
