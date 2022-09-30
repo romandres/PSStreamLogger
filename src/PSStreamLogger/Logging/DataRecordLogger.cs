@@ -10,10 +10,15 @@ namespace PSStreamLoggerModule
 {
     public class DataRecordLogger
     {
-        public const string PSExtendedInfoKey = "PSExtendedInfo";
-        public const string PSInvocationInfoKey = "PSInvocationInfo";
+        public const string PSTagsKey = "PSTags";
+        public const string PSCommandInvocationInfoKey = "PSCommandInvocationInfo";
+        public const string PSErrorDetailsKey = "PSErrorDetails";
+        public const string PSErrorInfoKey = "PSErrorInfo";
+        public const string PSFullyQualifiedErrorIdKey = "PSFullyQualifiedErrorId";
         public const string PSErrorIdKey = "PSErrorId";
         public const string PSErrorCommandNameKey = "PSErrorCommandName";
+        public const string PSErrorScriptStackTraceKey = "PSErrorScriptStackTrace";
+        public const string PSErrorExceptionStackTraceKey = "PSErrorExceptionStackTrace";
 
         private readonly ILogger logger;
 
@@ -65,11 +70,11 @@ namespace PSStreamLoggerModule
             string scriptFile = verboseRecord.InvocationInfo.ScriptName;
             int scriptLine = verboseRecord.InvocationInfo.ScriptLineNumber;
 
-            string invocationInfo = GetInvocationInfo(commandName, moduleName, scriptFile, scriptLine);
+            string? invocationInfo = GetInvocationInfo(commandName, moduleName, scriptFile, scriptLine);
 
-            var scope = new Dictionary<string, object>
+            var scope = new Dictionary<string, object?>
             {
-                { PSInvocationInfoKey, invocationInfo }
+                { PSCommandInvocationInfoKey, invocationInfo }
             };
 
             using (logger.BeginScope(scope))
@@ -87,11 +92,11 @@ namespace PSStreamLoggerModule
             string scriptFile = debugRecord.InvocationInfo.ScriptName;
             int scriptLine = debugRecord.InvocationInfo.ScriptLineNumber;
 
-            string invocationInfo = GetInvocationInfo(commandName, moduleName, scriptFile, scriptLine);
+            string? invocationInfo = GetInvocationInfo(commandName, moduleName, scriptFile, scriptLine);
 
-            var scope = new Dictionary<string, object>
+            var scope = new Dictionary<string, object?>
             {
-                { PSInvocationInfoKey, invocationInfo }
+                { PSCommandInvocationInfoKey, invocationInfo }
             };
 
             using (logger.BeginScope(scope))
@@ -107,16 +112,16 @@ namespace PSStreamLoggerModule
             object messageData = informationRecord.MessageData;
             string? scriptFile = "Write-Information".Equals(informationRecord.Source, StringComparison.OrdinalIgnoreCase) ? null : informationRecord.Source;
 
-            string invocationInfo = GetInvocationInfo(scriptFile, null, null, null);
+            string? invocationInfo = GetInvocationInfo(scriptFile, null, null, null);
 
-            var scope = new Dictionary<string, object>
+            var scope = new Dictionary<string, object?>
             {
-                { PSInvocationInfoKey, invocationInfo }
+                { PSCommandInvocationInfoKey, invocationInfo }
             };
 
             if (tags.Count > 0)
             {
-                scope.Add(PSExtendedInfoKey, $"Tags: {string.Join(", ", tags)}{Environment.NewLine}");
+                scope.Add(PSTagsKey, tags);
             }
 
             using (logger.BeginScope(scope))
@@ -137,23 +142,17 @@ namespace PSStreamLoggerModule
         private void LogWarning(WarningRecord warningRecord)
         {
             string message = warningRecord.Message;
-            string fullyQualifiedWarningId = warningRecord.FullyQualifiedWarningId;
             string moduleName = warningRecord.InvocationInfo.MyCommand.ModuleName;
             string commandName = warningRecord.InvocationInfo.MyCommand.Name;
             string scriptFile = warningRecord.InvocationInfo.ScriptName;
             int scriptLine = warningRecord.InvocationInfo.ScriptLineNumber;
 
-            string invocationInfo = GetInvocationInfo(commandName, moduleName, scriptFile, scriptLine);
+            string? invocationInfo = GetInvocationInfo(commandName, moduleName, scriptFile, scriptLine);
 
-            var scope = new Dictionary<string, object>
+            var scope = new Dictionary<string, object?>
             {
-                { PSInvocationInfoKey, invocationInfo }
+                { PSCommandInvocationInfoKey, invocationInfo }
             };
-
-            if (!string.IsNullOrEmpty(fullyQualifiedWarningId))
-            {
-                scope.Add(PSExtendedInfoKey, $"{fullyQualifiedWarningId}{Environment.NewLine}");
-            }
 
             using (logger.BeginScope(scope))
             {
@@ -181,11 +180,11 @@ namespace PSStreamLoggerModule
                 {
                     // Remove the last two lines of the script stack trace which come from the InvokeCommandWithLogging cmdlet
                     var scriptStackTraceParts = Regex.Split(errorRecord.ScriptStackTrace, Environment.NewLine);
-                    scriptStackTrace = string.Join(Environment.NewLine, scriptStackTraceParts.Take(scriptStackTraceParts.Length - numberOfStackTraceLinesToRemove));
+                    scriptStackTrace = $"{string.Join(Environment.NewLine, scriptStackTraceParts.Take(scriptStackTraceParts.Length - numberOfStackTraceLinesToRemove))}{Environment.NewLine}";
                 }
                 else
                 {
-                    scriptStackTrace = errorRecord.ScriptStackTrace;
+                    scriptStackTrace = $"{errorRecord.ScriptStackTrace}{Environment.NewLine}";
                 }
             }
             else
@@ -201,13 +200,18 @@ namespace PSStreamLoggerModule
             string? errorMessage = string.IsNullOrEmpty(errorRecord.ErrorDetails?.Message) ? errorRecord.Exception?.Message : errorRecord.ErrorDetails?.Message;
             Exception? ex = errorRecord.Exception;
 
-            string extendedInfo = GetExtendedErrorInfo(fullyQualifiedErrorId, activity, targetName, targetTypeName, category, reason, scriptStackTrace, ex);
+            string errorInfo = GetErrorInfo(fullyQualifiedErrorId, activity, targetName, targetTypeName, category, reason);
+            string? exceptionStackTrace = GetExceptionStackTrace(ex);
 
-            var scope = new Dictionary<string, object>
+            var scope = new Dictionary<string, object?>
             {
-                { PSExtendedInfoKey, extendedInfo },
+                { PSErrorDetailsKey, $"{errorInfo}{Environment.NewLine}{scriptStackTrace}{Environment.NewLine}{exceptionStackTrace}" },
+                { PSErrorInfoKey, errorInfo },
+                { PSFullyQualifiedErrorIdKey, fullyQualifiedErrorId },
                 { PSErrorIdKey, errorId },
-                { PSErrorCommandNameKey, errorCommand! }
+                { PSErrorCommandNameKey, errorCommand },
+                { PSErrorScriptStackTraceKey, scriptStackTrace },
+                { PSErrorExceptionStackTraceKey, exceptionStackTrace }
             };
 
             using (logger.BeginScope(scope))
@@ -216,15 +220,19 @@ namespace PSStreamLoggerModule
             }
         }
 
-        private static string GetInvocationInfo(string? commandName, string? moduleName, string? scriptFile, int? lineNumber)
+        private static string? GetInvocationInfo(string? commandName, string? moduleName, string? scriptFile, int? lineNumber)
         {
             if (string.IsNullOrEmpty(commandName) && string.IsNullOrEmpty(moduleName) && string.IsNullOrEmpty(scriptFile) && !lineNumber.HasValue)
             {
-                return string.Empty;
+                return null;
+            }
+
+            if (string.IsNullOrEmpty(commandName))
+            {
+                commandName = "<ScriptBlock>";
             }
 
             var stringBuilder = new StringBuilder();
-            stringBuilder.Append("[at ");
 
             if (!string.IsNullOrEmpty(moduleName))
             {
@@ -242,11 +250,7 @@ namespace PSStreamLoggerModule
 
             if (!string.IsNullOrEmpty(scriptFile))
             {
-                if (!string.IsNullOrEmpty(commandName))
-                {
-                    stringBuilder.Append($", ");
-                }
-
+                stringBuilder.Append(", ");
                 stringBuilder.Append(scriptFile);
             }
 
@@ -254,19 +258,44 @@ namespace PSStreamLoggerModule
             {
                 if (!string.IsNullOrEmpty(commandName) || !string.IsNullOrEmpty(scriptFile))
                 {
-                    stringBuilder.Append($": ");
+                    stringBuilder.Append(": ");
                 }
 
                 stringBuilder.Append($"line {lineNumber}");
             }
 
-
-            stringBuilder.Append(']');
-
             return stringBuilder.ToString();
         }
 
-        private static string GetExtendedErrorInfo(string fullyQualifiedErrorId, string activity, string targetName, string targetTypeName, string category, string reason, string? scriptStackTrace, Exception? exception)
+        private static string? GetExceptionStackTrace(Exception? exception)
+        {
+            if (exception is object)
+            {
+                var stringBuilder = new StringBuilder();
+
+                stringBuilder.Append($"{exception.GetType().FullName}: {exception.Message}");
+
+                if (!string.IsNullOrEmpty(exception.StackTrace))
+                {
+                    stringBuilder.Append($"{Environment.NewLine}{exception.StackTrace}");
+
+                    if (!exception.StackTrace.EndsWith(Environment.NewLine, StringComparison.OrdinalIgnoreCase))
+                    {
+                        stringBuilder.Append(Environment.NewLine);
+                    }
+                }
+                else
+                {
+                    stringBuilder.Append(Environment.NewLine);
+                }
+
+                return stringBuilder.ToString();
+            }
+
+            return null;
+        }
+
+        private static string GetErrorInfo(string fullyQualifiedErrorId, string activity, string targetName, string targetTypeName, string category, string reason)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.Append($"FullyQualifiedErrorID: {fullyQualifiedErrorId}{Environment.NewLine}");
@@ -289,30 +318,6 @@ namespace PSStreamLoggerModule
             if (!string.IsNullOrEmpty(reason))
             {
                 stringBuilder.Append($"Reason: {reason}{Environment.NewLine}");
-            }
-
-            if (!string.IsNullOrEmpty(scriptStackTrace))
-            {
-                stringBuilder.Append($"{scriptStackTrace}{Environment.NewLine}");
-            }
-
-            if (exception != null)
-            {
-                stringBuilder.Append($"{Environment.NewLine}{exception.GetType().FullName}: {exception.Message}");
-
-                if (!string.IsNullOrEmpty(exception.StackTrace))
-                {
-                    stringBuilder.Append($"{Environment.NewLine}{exception.StackTrace}");
-
-                    if (!exception.StackTrace.EndsWith(Environment.NewLine, StringComparison.OrdinalIgnoreCase))
-                    {
-                        stringBuilder.Append(Environment.NewLine);
-                    }
-                }
-                else
-                {
-                    stringBuilder.Append(Environment.NewLine);
-                }
             }
 
             return stringBuilder.ToString();
