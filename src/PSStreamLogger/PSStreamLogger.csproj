@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net48;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net48</TargetFrameworks>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
     <LangVersion>8.0</LangVersion>
@@ -12,7 +12,7 @@
     <AssemblyName>PSStreamLogger</AssemblyName>
     <RootNamespace>PSStreamLoggerModule</RootNamespace>
     
-    <Version>0.6.2-preview</Version>
+    <Version>0.7.0</Version>
     <Authors>romandres</Authors>
     <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
