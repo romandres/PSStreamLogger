@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using Microsoft.Extensions.Logging;
-using Microsoft.PowerShell;
 using Serilog;
 
 namespace PSStreamLoggerModule
@@ -80,10 +79,8 @@ namespace PSStreamLoggerModule
             {
                 // Get current directory
                 var currentPath = InvokeCommand.InvokeScript("Get-Location")[0].BaseObject.ToString();
-                // Get current execution policy
-                var executionPolicy = InvokeCommand.InvokeScript("Get-ExecutionPolicy -Scope Process")[0].BaseObject as ExecutionPolicy?;
 
-                powerShellExecutor = new PowerShellExecutor(dataRecordLogger!, currentPath, executionPolicy);
+                powerShellExecutor = new PowerShellExecutor(dataRecordLogger!, currentPath);
 
                 exec = () =>
                 {
