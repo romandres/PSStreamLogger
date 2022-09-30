@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Globalization;
 using System.Management.Automation;
-using System.Runtime.Serialization;
 using Serilog;
 using Serilog.Templates;
 
