@@ -45,13 +45,16 @@ namespace PSStreamLoggerModule
                 if (disposing)
                 {
                     loggerFactory?.Dispose();
-                    foreach (var logger in Loggers!)
+
+                    if (Loggers is object)
                     {
-                        logger.Dispose();
+                        foreach (var logger in Loggers)
+                        {
+                            logger.Dispose();
+                        }
                     }
 
                     powerShellExecutor?.Dispose();
-                    powerShellExecutor = null;
                 }
 
                 disposed = true;
