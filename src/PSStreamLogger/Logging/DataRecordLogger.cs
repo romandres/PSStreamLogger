@@ -11,11 +11,11 @@ namespace PSStreamLoggerModule
     public class DataRecordLogger
     {
         public const string PSTagsKey = "PSTags";
-        public const string PSInvocationInfoKey = "PSCommandInvocationInfo";
+        public const string PSCommandInvocationInfoKey = "PSCommandInvocationInfo";
         public const string PSErrorDetailsKey = "PSErrorDetails";
         public const string PSErrorInfoKey = "PSErrorInfo";
         public const string PSFullyQualifiedErrorIdKey = "PSFullyQualifiedErrorId";
-        public const string PSErrorIdKey = "PSErrorModuleName";
+        public const string PSErrorIdKey = "PSErrorId";
         public const string PSErrorCommandNameKey = "PSErrorCommandName";
         public const string PSErrorScriptStackTraceKey = "PSErrorScriptStackTrace";
         public const string PSErrorExceptionStackTraceKey = "PSErrorExceptionStackTrace";
@@ -74,7 +74,7 @@ namespace PSStreamLoggerModule
 
             var scope = new Dictionary<string, object?>
             {
-                { PSInvocationInfoKey, invocationInfo }
+                { PSCommandInvocationInfoKey, invocationInfo }
             };
 
             using (logger.BeginScope(scope))
@@ -96,7 +96,7 @@ namespace PSStreamLoggerModule
 
             var scope = new Dictionary<string, object?>
             {
-                { PSInvocationInfoKey, invocationInfo }
+                { PSCommandInvocationInfoKey, invocationInfo }
             };
 
             using (logger.BeginScope(scope))
@@ -116,7 +116,7 @@ namespace PSStreamLoggerModule
 
             var scope = new Dictionary<string, object?>
             {
-                { PSInvocationInfoKey, invocationInfo }
+                { PSCommandInvocationInfoKey, invocationInfo }
             };
 
             if (tags.Count > 0)
@@ -151,7 +151,7 @@ namespace PSStreamLoggerModule
 
             var scope = new Dictionary<string, object?>
             {
-                { PSInvocationInfoKey, invocationInfo }
+                { PSCommandInvocationInfoKey, invocationInfo }
             };
 
             using (logger.BeginScope(scope))
