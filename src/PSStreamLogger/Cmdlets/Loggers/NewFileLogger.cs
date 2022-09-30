@@ -1,8 +1,8 @@
-﻿using Serilog;
-using Serilog.Templates;
-using System;
+﻿using System;
 using System.Globalization;
 using System.Management.Automation;
+using Serilog;
+using Serilog.Templates;
 
 namespace PSStreamLoggerModule
 {
