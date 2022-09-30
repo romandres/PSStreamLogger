@@ -1,6 +1,9 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Management.Automation;
+using System.Runtime.Serialization;
 using Serilog;
+using Serilog.Templates;
 
 namespace PSStreamLoggerModule
 {
@@ -8,7 +11,7 @@ namespace PSStreamLoggerModule
     public class NewConsoleLogger : PSCmdlet
     {
         [Parameter()]
-        public string OutputTemplate { get; set; } = $"[{{Timestamp:yyyy-MM-dd HH:mm:ss.fffzz}} {{Level:u3}}] {{Message:lj}}{{NewLine}}{{{DataRecordLogger.PSExtendedInfoKey}}}";
+        public string ExpressionTemplate { get; set; } = $"[{{@t:yyyy-MM-dd HH:mm:ss.fffzz}} {{@l:u3}}] {{@m:lj}}{Environment.NewLine}{{{DataRecordLogger.PSErrorDetailsKey}}}";
 
         [Parameter()]
         public string? FilterIncludeOnlyExpression { get; set; }
@@ -22,8 +25,10 @@ namespace PSStreamLoggerModule
         protected override void EndProcessing()
         {
             var loggerConfiguration = new Serilog.LoggerConfiguration()
-                .MinimumLevel.Is(MinimumLogLevel)
-                .WriteTo.Console(MinimumLogLevel, OutputTemplate, formatProvider: CultureInfo.CurrentCulture)
+            .MinimumLevel.Is(MinimumLogLevel)
+                .WriteTo.Console(
+                    formatter: new ExpressionTemplate(template: ExpressionTemplate, theme: Serilog.Templates.Themes.TemplateTheme.Code),
+                    restrictedToMinimumLevel: MinimumLogLevel)
                 .Enrich.FromLogContext();
 
             if (FilterIncludeOnlyExpression is object)
