@@ -3,18 +3,18 @@ name: Build
 on:
 
   push:
-    branches: 
+    branches:
       - main
 
   pull_request:
-    branches: 
+    branches:
       - main
 
 jobs:
 
-  build_standard:
+  build:
 
-    name: Build .NET Standard
+    name: Build
 
     runs-on: ubuntu-latest
 
@@ -25,7 +25,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.405
+        dotnet-version: 6.0.x
 
     - name: Publish
       run: dotnet publish src/PSStreamLogger.sln -c Release -f netstandard2.0 -o "publish"
@@ -41,32 +41,5 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
-        name: PSStreamLogger-Standard
-        path: ../artifact/psstreamlogger
-
-  build_full:
-
-    name: Build .NET Framework
-
-    runs-on: windows-latest
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-
-    - name: Publish
-      run: dotnet publish src/PSStreamLogger.sln -c Release -f net48 -o "publish"
-
-    - name: Create artifact directory
-      run: New-Item -ItemType Directory -Path "../artifact/psstreamlogger" -Force
-      shell: pwsh
-
-    - name: Copy files to artifact directory
-      run: Copy-Item -Path "publish/*" -Destination "../artifact/psstreamlogger" -Include @("*.dll", "*.psd1")
-      shell: pwsh
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v1.0.0
-      with:
-        name: PSStreamLogger-Full
+        name: PSStreamLogger
         path: ../artifact/psstreamlogger
