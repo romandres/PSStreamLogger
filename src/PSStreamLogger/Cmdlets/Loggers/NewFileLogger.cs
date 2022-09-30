@@ -1,4 +1,6 @@
 ﻿using Serilog;
+using Serilog.Templates;
+using System;
 using System.Globalization;
 using System.Management.Automation;
 
@@ -23,7 +25,7 @@ namespace PSStreamLoggerModule
         public RollingInterval RollingInterval { get; set; } = RollingInterval.Infinite;
 
         [Parameter()]
-        public string OutputTemplate { get; set; } = $"[{{Timestamp:yyyy-MM-dd HH:mm:ss.fffzz}} {{Level:u3}}] {{Message:lj}}{{NewLine}}{{{DataRecordLogger.PSExtendedInfoKey}}}";
+        public string ExpressionTemplate { get; set; } = $"[{{@t:yyyy-MM-dd HH:mm:ss.fffzz}} {{@l:u3}}] {{@m:lj}}{Environment.NewLine}{{{DataRecordLogger.PSExtendedInfoKey}}}";
 
         [Parameter()]
         public string? FilterIncludeOnlyExpression { get; set; }
@@ -38,7 +40,14 @@ namespace PSStreamLoggerModule
         {
             var loggerConfiguration = new Serilog.LoggerConfiguration()
                 .MinimumLevel.Is(MinimumLogLevel)
-                .WriteTo.File(FilePath!, MinimumLogLevel, OutputTemplate, formatProvider: CultureInfo.CurrentCulture, fileSizeLimitBytes: FileSizeLimit, retainedFileCountLimit: RetainedFileCountLimit, rollOnFileSizeLimit: RollOnFileSizeLimit.IsPresent, rollingInterval: RollingInterval)
+                .WriteTo.File(
+                    path: FilePath!,
+                    formatter: new ExpressionTemplate(template: ExpressionTemplate, formatProvider: CultureInfo.CurrentCulture),
+                    fileSizeLimitBytes: FileSizeLimit,
+                    retainedFileCountLimit: RetainedFileCountLimit,
+                    rollOnFileSizeLimit: RollOnFileSizeLimit.IsPresent,
+                    rollingInterval: RollingInterval,
+                    restrictedToMinimumLevel: MinimumLogLevel)
                 .Enrich.FromLogContext();
 
             if (FilterIncludeOnlyExpression is object)

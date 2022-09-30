@@ -11,7 +11,8 @@ namespace PSStreamLoggerModule
     public class DataRecordLogger
     {
         public const string PSExtendedInfoKey = "PSExtendedInfo";
-        public const string PSInvocationInfoKey = "PSInvocationInfo";
+        public const string PSTagsKey = "PSTags";
+        public const string PSInvocationInfoKey = "PSCommandInvocationInfo";
         public const string PSErrorIdKey = "PSErrorId";
         public const string PSErrorCommandNameKey = "PSErrorCommandName";
 
@@ -65,9 +66,9 @@ namespace PSStreamLoggerModule
             string scriptFile = verboseRecord.InvocationInfo.ScriptName;
             int scriptLine = verboseRecord.InvocationInfo.ScriptLineNumber;
 
-            string invocationInfo = GetInvocationInfo(commandName, moduleName, scriptFile, scriptLine);
+            string? invocationInfo = GetInvocationInfo(commandName, moduleName, scriptFile, scriptLine);
 
-            var scope = new Dictionary<string, object>
+            var scope = new Dictionary<string, object?>
             {
                 { PSInvocationInfoKey, invocationInfo }
             };
@@ -87,9 +88,9 @@ namespace PSStreamLoggerModule
             string scriptFile = debugRecord.InvocationInfo.ScriptName;
             int scriptLine = debugRecord.InvocationInfo.ScriptLineNumber;
 
-            string invocationInfo = GetInvocationInfo(commandName, moduleName, scriptFile, scriptLine);
+            string? invocationInfo = GetInvocationInfo(commandName, moduleName, scriptFile, scriptLine);
 
-            var scope = new Dictionary<string, object>
+            var scope = new Dictionary<string, object?>
             {
                 { PSInvocationInfoKey, invocationInfo }
             };
@@ -107,16 +108,16 @@ namespace PSStreamLoggerModule
             object messageData = informationRecord.MessageData;
             string? scriptFile = "Write-Information".Equals(informationRecord.Source, StringComparison.OrdinalIgnoreCase) ? null : informationRecord.Source;
 
-            string invocationInfo = GetInvocationInfo(scriptFile, null, null, null);
+            string? invocationInfo = GetInvocationInfo(scriptFile, null, null, null);
 
-            var scope = new Dictionary<string, object>
+            var scope = new Dictionary<string, object?>
             {
                 { PSInvocationInfoKey, invocationInfo }
             };
 
             if (tags.Count > 0)
             {
-                scope.Add(PSExtendedInfoKey, $"Tags: {string.Join(", ", tags)}{Environment.NewLine}");
+                scope.Add(PSTagsKey, tags);
             }
 
             using (logger.BeginScope(scope))
@@ -143,9 +144,9 @@ namespace PSStreamLoggerModule
             string scriptFile = warningRecord.InvocationInfo.ScriptName;
             int scriptLine = warningRecord.InvocationInfo.ScriptLineNumber;
 
-            string invocationInfo = GetInvocationInfo(commandName, moduleName, scriptFile, scriptLine);
+            string? invocationInfo = GetInvocationInfo(commandName, moduleName, scriptFile, scriptLine);
 
-            var scope = new Dictionary<string, object>
+            var scope = new Dictionary<string, object?>
             {
                 { PSInvocationInfoKey, invocationInfo }
             };
@@ -216,15 +217,19 @@ namespace PSStreamLoggerModule
             }
         }
 
-        private static string GetInvocationInfo(string? commandName, string? moduleName, string? scriptFile, int? lineNumber)
+        private static string? GetInvocationInfo(string? commandName, string? moduleName, string? scriptFile, int? lineNumber)
         {
             if (string.IsNullOrEmpty(commandName) && string.IsNullOrEmpty(moduleName) && string.IsNullOrEmpty(scriptFile) && !lineNumber.HasValue)
             {
-                return string.Empty;
+                return null;
+            }
+
+            if (string.IsNullOrEmpty(commandName))
+            {
+                commandName = "<ScriptBlock>";
             }
 
             var stringBuilder = new StringBuilder();
-            stringBuilder.Append("[at ");
 
             if (!string.IsNullOrEmpty(moduleName))
             {
@@ -242,11 +247,7 @@ namespace PSStreamLoggerModule
 
             if (!string.IsNullOrEmpty(scriptFile))
             {
-                if (!string.IsNullOrEmpty(commandName))
-                {
-                    stringBuilder.Append($", ");
-                }
-
+                stringBuilder.Append(", ");
                 stringBuilder.Append(scriptFile);
             }
 
@@ -254,14 +255,11 @@ namespace PSStreamLoggerModule
             {
                 if (!string.IsNullOrEmpty(commandName) || !string.IsNullOrEmpty(scriptFile))
                 {
-                    stringBuilder.Append($": ");
+                    stringBuilder.Append(": ");
                 }
 
                 stringBuilder.Append($"line {lineNumber}");
             }
-
-
-            stringBuilder.Append(']');
 
             return stringBuilder.ToString();
         }

@@ -1,5 +1,8 @@
-﻿using System.Management.Automation;
+﻿using System;
+using System.Globalization;
+using System.Management.Automation;
 using Serilog;
+using Serilog.Templates;
 
 namespace PSStreamLoggerModule
 {
@@ -13,7 +16,7 @@ namespace PSStreamLoggerModule
         public string? LogName { get; set; }
 
         [Parameter()]
-        public string OutputTemplate { get; set; } = $"{{Message:lj}}{{NewLine}}{{{DataRecordLogger.PSExtendedInfoKey}}}";
+        public string ExpressionTemplate { get; set; } = $"{{@m:lj}}{Environment.NewLine}{{{DataRecordLogger.PSExtendedInfoKey}}}";
 
         [Parameter()]
         public string? FilterIncludeOnlyExpression { get; set; }
@@ -31,7 +34,14 @@ namespace PSStreamLoggerModule
         {
             var loggerConfiguration = new Serilog.LoggerConfiguration()
                 .MinimumLevel.Is(MinimumLogLevel)
-                .WriteTo.EventLog(LogSource, LogName, outputTemplate: OutputTemplate, eventIdProvider: EventIdProvider is object ? new EventIdScriptBlockProvider(EventIdProvider) : null)
+                .WriteTo.EventLog(
+                    source: LogSource,
+                    logName: LogName,
+                    formatter: new ExpressionTemplate(template: ExpressionTemplate, formatProvider: CultureInfo.CurrentCulture),
+                    restrictedToMinimumLevel: MinimumLogLevel,
+                    eventIdProvider: EventIdProvider is object
+                        ? new EventIdScriptBlockProvider(EventIdProvider)
+                        : null)
                 .Enrich.FromLogContext();
 
             if (FilterIncludeOnlyExpression is object)
