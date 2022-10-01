@@ -9,7 +9,7 @@
 
 	PrivateData = @{
 		PSData = @{
-			ProjectURI = 'https://github.com/romandres/PSStreamLogger-PSModule'
+			ProjectURI = 'https://github.com/romandres/PSStreamLogger'
 
 			Tags = @(
 				'PSEdition_Desktop'
