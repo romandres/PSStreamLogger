@@ -1,20 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net48</TargetFrameworks>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-
-    <LangVersion>8.0</LangVersion>
-    <Nullable>enable</Nullable>
-
-    <AnalysisMode>All</AnalysisMode>
-
     <AssemblyName>PSStreamLogger</AssemblyName>
     <RootNamespace>PSStreamLoggerModule</RootNamespace>
     
-    <Version>0.7.0</Version>
-    <Authors>romandres</Authors>
-    <NeutralLanguage>en-US</NeutralLanguage>
+    <TargetFrameworks>netstandard2.0;net48</TargetFrameworks>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
