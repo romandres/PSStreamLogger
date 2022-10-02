@@ -1,0 +1,33 @@
+name: CI build
+
+on:
+
+  push:
+    branches:
+      - main
+      - romandres-v1-fullclr
+
+jobs:
+
+  build_coreclr:
+    name: CoreCLR
+    uses: ./.github/workflows/reusable_build.yml
+    with:
+      targetFramework: netstandard2.0
+      runsOn: ubuntu-latest
+      artifactName: PSStreamLogger-CoreCLR
+
+  build_fullclr:
+    name: FullCLR
+    uses: ./.github/workflows/reusable_build.yml
+    with:
+      targetFramework: net48
+      runsOn: windows-latest
+      artifactName: PSStreamLogger-FullCLR
+
+  publish:
+    uses: ./.github/workflows/reusable_publish_release.yml
+    with:
+      commit: ${{ github.sha }}
+      tag: ${{ format('v{0}', env.VERSION_FULL }}
+      isPrerelease: ${{ env.VERSION_SUFFIX != '' }}
