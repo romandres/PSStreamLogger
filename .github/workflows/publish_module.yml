@@ -13,3 +13,4 @@ jobs:
     uses: ./.github/workflows/reusable_publish_module.yml
     with:
       environment: psgallery
+      tag: ${{ release.tag_name }}
