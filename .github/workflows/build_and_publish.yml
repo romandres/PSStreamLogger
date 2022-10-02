@@ -25,15 +25,6 @@ jobs:
       runsOn: windows-latest
       artifactName: PSStreamLogger-FullCLR
 
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    needs: [ 'build_coreclr', 'build_fullclr' ]
-    steps:
-    - name: Test
-      run: echo ${{ needs.build_coreclr.outputs.isPrerelease }} ${{ needs.build_coreclr.outputs.releaseVersion }}
-
-
   publish:
     name: Publish Release
     if: ${{ !startswith(github.ref, 'refs/pull/') }}
