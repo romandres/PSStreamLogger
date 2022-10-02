@@ -1,0 +1,35 @@
+name: Publish Module
+
+on:
+
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+    secrets:
+      psGalleryApiKey:
+        required: true
+
+jobs:
+
+  publish:
+    name: Publish Module
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: robinraju/release-downloader@v1.5
+      with:
+        tag: ${{ release.tag_name }}
+        fileName: "PSStreamLogger.zip"
+        out-file-path: "download"
+
+    - name: Expand archive
+      run:  Expand-Archive -Path ./download/PSStreamLogger.zip -DestinationPath "./PSStreamLogger"
+      shell: pwsh
+
+    - name: Publish module to PSGallery
+      run:  Publish-Module -Path .\PSStreamLogger -NuGetApiKey "${{ secrets.psGalleryApiKey }}" -Verbose -WhatIf
+      shell: pwsh
