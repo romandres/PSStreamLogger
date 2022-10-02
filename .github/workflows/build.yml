@@ -5,117 +5,38 @@ on:
   push:
     branches:
       - main
-
-  pull_request:
+      - romandres-v1-fullcrl
 
 jobs:
 
-  build:
+  build_coreclr:
+    name: Build CoreCLR
+    uses: romandres/PStreamLogger/.github/workflows/templates/build.yml@romandres-v1-fullcrl
+    with:
+      targetFramework: netstandard2.0
 
-    name: Build
-    runs-on: ubuntu-latest
+  build_fullclr:
+    name: Build FullCLR
+    uses: romandres/PStreamLogger/.github/workflows/templates/build.yml@romandres-v1-fullcrl
+    with:
+      targetFramework: net48
 
-    steps:
+  # publish:
+  #   if: ${{ !startswith(github.ref, 'refs/pull/') }}
 
-    - name: Checkout
-      uses: actions/checkout@v1
+  #   name: Publish
+  #   environment: psgallery
+  #   needs: build
+  #   runs-on: ubuntu-latest
 
-    - name: Set version suffix
-      run: |
-        $DebugPreference = "Continue"
+  #   steps:
 
-        # Get source branch name
-        $sourceBranchName = "${{ github.ref }}"
-        Write-Debug "Source branch name: '$($sourceBranchName)'"
+  #   - name: Download artifact
+  #     uses: actions/download-artifact@v2
+  #     with:
+  #       name: PSStreamLogger
+  #       path: ./PSStreamLogger
 
-        $runId = ${{ github.run_id }}
-
-        # Is this the main branch?
-        $isMain = $sourceBranchName -eq "refs/heads/main"
-        Write-Debug "Is main: '$($isMain)'"
-
-        # Define prerelease suffix if this is not the main branch
-        $prereleaseSuffix = if (-not $isMain) {
-          "-preview"
-        }
-
-        # Combine prerelease and build meta data to version suffix
-        $versionSuffix = if (-not $isMain) {
-          "$($prereleaseSuffix)$($runId)"
-        } else {
-          # This means the version suffix will be ignored by the Directory.Build.props
-          # If the Directory.Build.props file is missing, the build should fail because of an invalid version
-          "-"
-        }
-
-        Write-Debug "Version suffix: '$versionSuffix'"
-        "VERSION_SUFFIX=$($versionSuffix)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
-      shell: pwsh
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 6.0.x
-
-    - name: Publish
-      run: dotnet publish src/PSStreamLogger.sln -c Release -f netstandard2.0 -o "publish" --version-suffix "${{ env.VERSION_SUFFIX }}"
-
-    - name: Get final version from assembly
-      run: |
-        $DebugPreference = "Continue"
-
-        $assemblyPath = "publish/PSStreamLogger.dll"
-        $productVersion = Get-Item $assemblyPath | Select-Object -ExpandProperty VersionInfo | Select-Object -ExpandProperty ProductVersion
-        $version = ($productVersion -split "-")[0]
-
-        Write-Debug "version: '$version'"
-        "VERSION=$($version)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
-      shell: pwsh
-
-    - name: Create artifact directory
-      run: New-Item -ItemType Directory -Path "../artifact/psstreamlogger" -Force
-      shell: pwsh
-
-    - name: Copy files to artifact directory
-      run: Copy-Item -Path "publish/*" -Destination "../artifact/psstreamlogger" -Include @("*.dll", "*.psd1")
-      shell: pwsh
-
-    - name: Set module version in manifest
-      run: |
-        $params = @{
-          "Path" = "../artifact/psstreamlogger/PSStreamLogger.psd1"
-          "ModuleVersion" = $env:VERSION
-        }
-
-        if ($env:VERSION_SUFFIX -ne "-") {
-          $params.Add("Prerelease", $env:VERSION_SUFFIX)
-        }
-
-        Update-ModuleManifest @params
-      shell: pwsh
-
-    - name: Upload artifact
-      uses: actions/upload-artifact@v1.0.0
-      with:
-        name: PSStreamLogger
-        path: ../artifact/psstreamlogger
-
-  publish:
-    if: ${{ !startswith(github.ref, 'refs/pull/') }}
-
-    name: Publish
-    environment: psgallery
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-
-    - name: Download artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: PSStreamLogger
-        path: ./PSStreamLogger
-
-    - name: Publish module to PSGallery
-      run:  Publish-Module -Path .\PSStreamLogger -NuGetApiKey "${{ secrets.PSGALLERY_API_KEY }}" -Verbose
-      shell: pwsh
+  #   - name: Publish module to PSGallery
+  #     run:  Publish-Module -Path .\PSStreamLogger -NuGetApiKey "${{ secrets.PSGALLERY_API_KEY }}" -Verbose
+  #     shell: pwsh
