@@ -8,7 +8,7 @@ jobs:
 
   build_coreclr:
     name: CoreCLR
-    uses: .github/workflows/reusable_build.yml
+    uses: ./.github/workflows/reusable_build.yml
     with:
       targetFramework: netstandard2.0
       runsOn: ubuntu-latest
@@ -16,7 +16,7 @@ jobs:
 
   build_fullclr:
     name: FullCLR
-    uses: .github/workflows/reusable_build.yml
+    uses: ./.github/workflows/reusable_build.yml
     with:
       targetFramework: net48
       runsOn: windows-latest
