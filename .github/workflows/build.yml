@@ -71,7 +71,7 @@ jobs:
         $version = ($productVersion -split "-")[0]
 
         Write-Debug "version: '$version'"
-        "VERSION=$($version.ToString(3))" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
+        "VERSION=$($version)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
       shell: pwsh
 
     - name: Create artifact directory
