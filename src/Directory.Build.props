@@ -1,0 +1,30 @@
+<Project>
+
+  <PropertyGroup>
+    <!--Version-->
+    <VersionPrefix>0.7.1</VersionPrefix>
+
+    <!--Metadata-->
+    <Authors>romandres</Authors>
+    <NeutralLanguage>en-US</NeutralLanguage>
+  </PropertyGroup>
+
+  <!--Options-->
+  <PropertyGroup>
+    <!--Enable all code analysis-->
+    <AnalysisMode>All</AnalysisMode>
+  </PropertyGroup>
+
+  <!--Version Suffix Handling-->
+  <PropertyGroup>
+    <!--Overwrite default behavior to combine VersionPrefix and VersionSuffix without a dash in between-->
+    <Version Condition="'$(VersionSuffix)' != '' and '$(VersionSuffix)' != '-'">$(VersionPrefix)$(VersionSuffix)</Version>
+
+    <!--Ignore VersionSuffix if it has the value '-'-->
+    <Version Condition="'$(VersionSuffix)' == '-'">$(VersionPrefix)</Version>
+
+    <!--Add generated VersionSuffix for local builds-->
+    <Version Condition="'$(VersionSuffix)' == ''">$(VersionPrefix)-localbuild.$([System.DateTime]::UtcNow.ToString('yyyyMMdd'))</Version>
+  </PropertyGroup>
+
+</Project>
