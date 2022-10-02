@@ -118,5 +118,5 @@ jobs:
         path: ./PSStreamLogger
 
     - name: Publish to PSGallery
-      run:  Publish-Module -Path .\PSStreamLogger -NuGetApiKey "${{ secrets.PSGALLERY_API_KEY }}" -Verbose -WhatIf
+      run:  Publish-Module -Path .\PSStreamLogger -NuGetApiKey "${{ secrets.PSGALLERY_API_KEY }}" -Verbose
       shell: pwsh
