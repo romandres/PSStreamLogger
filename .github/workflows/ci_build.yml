@@ -7,13 +7,17 @@ on:
 jobs:
 
   build_coreclr:
-    name: Build CoreCLR
+    name: CoreCLR
     uses: romandres/PSStreamLogger/.github/workflows/reusable_build.yml@romandres-v1-fullcrl
     with:
       targetFramework: netstandard2.0
+      runsOn: ubuntu-latest
+      artifactName: PSStreamLogger-CoreCLR
 
   build_fullclr:
-    name: Build FullCLR
+    name: FullCLR
     uses: romandres/PSStreamLogger/.github/workflows/reusable_build.yml@romandres-v1-fullcrl
     with:
       targetFramework: net48
+      runsOn: windows-latest
+      artifactName: PSStreamLogger-FullCLR
