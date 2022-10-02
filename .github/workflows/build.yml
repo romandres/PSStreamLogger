@@ -85,7 +85,7 @@ jobs:
     - name: Update module version
       run: |
         $params = @{
-          "Path" = "../artifact/PSStreamLogger.psd1"
+          "Path" = "../artifact/psstreamlogger/PSStreamLogger.psd1"
           "ModuleVersion" = $env:VERSION
         }
 
