@@ -51,7 +51,7 @@ jobs:
         }
 
         Write-Debug "Version suffix: '$versionSuffix'"
-        Write-Host "VERSION_SUFFIX=$($versionSuffix)" >> $GITHUB_ENV
+        Write-Host "VERSION_SUFFIX=$($versionSuffix)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
       shell: pwsh
 
     - name: Setup .NET
@@ -72,13 +72,18 @@ jobs:
 
     - name: Update module version
       run: |
+        $DebugPreference = "Continue"
+
+        Write-Debug "Version suffix: '$($env:VERSION_SUFFIX)'"
+        Write-Debug "Version suffix: '${{ env.VERSION_SUFFIX }}'"
+
         $params = @{
-          Path = "../artifact/PSStreamLogger.psd1"
-          Version = "0.7.1"
+          "Path" = "../artifact/PSStreamLogger.psd1"
+          "Version" = "0.7.1"
         }
 
         if ($env:VERSION_SUFFIX -ne "-") {
-          $params.Add("Prerelase", $env:VERSION_SUFFIX)
+          $params.Add("Prerelease", $env:VERSION_SUFFIX)
         }
 
         Update-ModuleManifest @params
