@@ -1,0 +1,36 @@
+name: Build and Publish Release
+
+on:
+
+  push:
+    branches:
+      - main
+      - release/*
+
+jobs:
+
+  build_coreclr:
+    name: Build CoreCLR
+    uses: ./.github/workflows/reusable_build.yml
+    with:
+      targetFramework: netstandard2.0
+      runsOn: ubuntu-latest
+      artifactName: PSStreamLogger-CoreCLR
+
+  build_fullclr:
+    name: Build FullCLR
+    uses: ./.github/workflows/reusable_build.yml
+    with:
+      targetFramework: net48
+      runsOn: windows-latest
+      artifactName: PSStreamLogger-FullCLR
+
+  publish:
+    name: Publish
+    if: ${{ !startswith(github.ref, 'refs/pull/') }}
+    uses: ./.github/workflows/reusable_publish_release.yml
+    needs: [ 'build_coreclr', 'build_fullclr' ]
+    with:
+      commit: ${{ github.sha }}
+      tag: ${{ needs.build_coreclr.outputs.releaseVersion }}
+      isPrerelease: ${{ needs.build_coreclr.outputs.isPrerelease == 'true' }}

@@ -1,0 +1,18 @@
+name: Publish Module
+
+on:
+
+  release:
+    types: [ published ]
+
+jobs:
+
+  publish:
+    name: Publish
+    if: ${{ !startswith(github.ref, 'refs/pull/') }}
+    uses: ./.github/workflows/reusable_publish_module.yml
+    with:
+      environment: psgallery
+      tag: ${{ github.event.release.tag_name }}
+    secrets:
+      PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
