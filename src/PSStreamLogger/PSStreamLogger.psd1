@@ -20,4 +20,12 @@
 			)
 		}
 	}
+
+	CmdletsToExport = @(
+		"Invoke-CommandWithLogging"
+		"New-ConsoleLogger"
+		"New-FileLogger"
+		"New-EventLogLogger"
+		"Out-PSStreamLogger"
+	)
 }
