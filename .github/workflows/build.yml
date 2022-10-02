@@ -20,7 +20,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v1
 
-    - name: Set Version Suffix
+    - name: Set version suffix
       run: |
         $DebugPreference = "Continue"
 
@@ -60,7 +60,7 @@ jobs:
     - name: Publish
       run: dotnet publish src/PSStreamLogger.sln -c Release -f netstandard2.0 -o "publish" --version-suffix "${{ env.VERSION_SUFFIX }}"
 
-    - name: Get Version
+    - name: Get final version from assembly
       run: |
         $DebugPreference = "Continue"
 
@@ -116,6 +116,6 @@ jobs:
         name: PSStreamLogger
         path: ./PSStreamLogger
 
-    - name: Publish to PSGallery
+    - name: Publish module to PSGallery
       run:  Publish-Module -Path .\PSStreamLogger -NuGetApiKey "${{ secrets.PSGALLERY_API_KEY }}" -Verbose
       shell: pwsh
