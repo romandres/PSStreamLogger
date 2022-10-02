@@ -26,6 +26,7 @@ jobs:
       artifactName: PSStreamLogger-FullCLR
 
   publish:
+    name: Publish Release
     uses: ./.github/workflows/reusable_publish_release.yml
     needs: [ 'build_coreclr', 'build_fullclr' ]
     with:

@@ -19,7 +19,7 @@ jobs:
   publish:
     if: ${{ !startswith(github.ref, 'refs/pull/') }}
 
-    name: Publish
+    name: Publish Release
     runs-on: ubuntu-latest
 
     steps:
@@ -54,4 +54,3 @@ jobs:
         artifacts: "./PSStreamLogger.zip"
         prerelease: ${{ inputs.isPrerelease }}
         draft: true
-        token: ${{ secrets.YOUR_GITHUB_TOKEN }}
