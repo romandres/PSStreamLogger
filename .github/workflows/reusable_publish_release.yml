@@ -20,7 +20,6 @@ jobs:
     if: ${{ !startswith(github.ref, 'refs/pull/') }}
 
     name: Publish
-    needs: [ 'build_coreclr', 'build_fullclr' ]
     runs-on: ubuntu-latest
 
     steps:
