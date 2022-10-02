@@ -26,7 +26,7 @@ jobs:
     - name: Get Version Suffix
       run: |
         # Get source branch name
-        $sourceBranchName = ${{ github.ref_name }}
+        $sourceBranchName = "${{ github.ref_name }}"
 
         $runId = ${{ github.run_id }}
 
