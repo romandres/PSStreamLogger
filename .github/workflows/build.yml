@@ -28,12 +28,13 @@ jobs:
         $DebugPreference = "Continue"
 
         # Get source branch name
-        $sourceBranchName = "${{ github.ref_name }}"
+        $sourceBranchName = "${{ github.ref }}"
+        Write-Debug "Source branch name: '$($sourceBranchName)'"
 
         $runId = ${{ github.run_id }}
 
         # Is this the main branch?
-        $isMain = $sourceBranch -in @("main", "master")
+        $isMain = $sourceBranchName -eq "refs/heads/main"
         Write-Debug "Is main: '$($isMain)'"
 
         # Define prerelease suffix if this is not the main branch
@@ -82,7 +83,7 @@ jobs:
       run: Copy-Item -Path "publish/*" -Destination "../artifact/psstreamlogger" -Include @("*.dll", "*.psd1")
       shell: pwsh
 
-    - name: Update module version
+    - name: Set module version in manifest
       run: |
         $params = @{
           "Path" = "../artifact/psstreamlogger/PSStreamLogger.psd1"
@@ -103,6 +104,7 @@ jobs:
         path: ../artifact/psstreamlogger
 
   publish:
+    if: github.ref == 'refs/heads/main' || startswith(github.ref, 'release/')
 
     name: Publish
     environment: psgallery
