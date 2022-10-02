@@ -123,5 +123,5 @@ jobs:
     - id: setOutputs
       name: Set ouptuts
       run: |
-        echo "::set-output name=isPrerelease::v${{ env.IS_PRERELEASE }}"
+        echo "::set-output name=isPrerelease::${{ env.IS_PRERELEASE }}"
         echo "::set-output name=releaseVersion::${{ env.RELEASE_VERSION }}"
