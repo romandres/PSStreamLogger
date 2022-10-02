@@ -32,4 +32,4 @@ jobs:
     with:
       commit: ${{ github.sha }}
       tag: ${{ needs.build_coreclr.outputs.releaseVersion }}
-      isPrerelease: true
+      isPrerelease: ${{ needs.build_coreclr.outputs.isPrerelease }}

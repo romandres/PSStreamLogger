@@ -22,8 +22,8 @@ jobs:
     runs-on: ${{ inputs.runsOn }}
 
     outputs:
-      isPrerelease: ${{ steps.getVersionSuffix.outputs.isPrerelease }}
-      releaseVersion: ${{ steps.getVersion.outputs.releaseVersion }}
+      isPrerelease: ${{ steps.setOutputs.outputs.isPrerelease }}
+      releaseVersion: ${{ steps.setOutputs.outputs.releaseVersion }}
 
     steps:
 
@@ -64,7 +64,7 @@ jobs:
 
         Write-Debug "Version suffix: '$versionSuffix'"
         "VERSION_SUFFIX=$($versionSuffix)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
-        Write-Host "::set-output name=isPrerelease::$($isPrerelease)"
+        "IS_PRERELEASE=$($isPrerelease)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
 
       shell: pwsh
 
@@ -84,12 +84,12 @@ jobs:
         $assemblyPath = "publish/PSStreamLogger.dll"
         $productVersion = Get-Item $assemblyPath | Select-Object -ExpandProperty VersionInfo | Select-Object -ExpandProperty ProductVersion
         $version = ($productVersion -split "-")[0]
+        $releaseVersion = "v$($productVersion)"
 
-        Write-Debug "version (full): '$productVersion'"
-        Write-Debug "version: '$version'"
+        Write-Debug "Release version: '$releaseVersion'"
+        Write-Debug "Version: '$version'"
         "VERSION=$($version)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
-
-        Write-Host "::set-output name=releaseVersion::v$($productVersion)"
+        "RELEASE_VERSION=$($releaseVersion)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
       shell: pwsh
 
     - name: Create artifact directory
@@ -119,3 +119,9 @@ jobs:
       with:
         name: ${{ inputs.artifactName }}
         path: ../artifact/psstreamlogger
+
+    - id: setOutputs
+      name: Set ouptuts
+      run: |
+        echo "::set-output name=isPrerelease::v${{ env.IS_PRERELEASE }}"
+        echo "::set-output name=releaseVersion::${{ env.RELEASE_VERSION }}"
