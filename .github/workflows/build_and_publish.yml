@@ -29,5 +29,5 @@ jobs:
     uses: ./.github/workflows/reusable_publish_release.yml
     with:
       commit: ${{ github.sha }}
-      tag: ${{ format('v{0}', $VERSION_FULL) }}
-      isPrerelease: ${{ $VERSION_SUFFIX != '' }}
+      tag: ${{ needs.build_coreclr.outputs.releaseVersion }}
+      isPrerelease: ${{ needs.build_coreclr.outputs.isPrerelease }}
