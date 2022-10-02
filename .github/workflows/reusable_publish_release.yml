@@ -17,7 +17,6 @@ on:
 jobs:
 
   publish:
-    if: ${{ !startswith(github.ref, 'refs/pull/') }}
 
     name: Publish Release
     runs-on: ubuntu-latest

@@ -27,6 +27,7 @@ jobs:
 
   publish:
     name: Publish Release
+    if: ${{ !startswith(github.ref, 'refs/pull/') }}
     uses: ./.github/workflows/reusable_publish_release.yml
     needs: [ 'build_coreclr', 'build_fullclr' ]
     with:
