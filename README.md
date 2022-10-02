@@ -19,14 +19,9 @@ Scripts and modules that already write into PowerShell streams do not have to be
 
 ## Installation
 
-Download the latest module version and store it into a PowerShell module directory on the system you'll use it so you'll be able to import it.
-
-### Which version to use?
-
-* Standard (**recommended version**)  
-The standard version of this module is based on .NET Standard 2.0 and will work on both PowerShell 7.x and Windows PowerShell 5.1. To use this version with Windows PowerShell 5.1 at least .NET Framework 4.7.2 must be installed.
-* Full (Windows-only version based on the .NET Framework)  
-This version of the module is based on .NET Framework 4.8 and will only work on Windows and Windows PowerShell 5.1. Only use this version if you need to log to the Windows EventLog using Windows PowerShell. Every other case, including logging to the Windows EventLog using PowerShell 7.x, works well with the standard version.
+```ps
+Install-Module PSStreamLogger
+```
 
 ## Usage
 
@@ -36,7 +31,7 @@ Configure the log module and invoke a script inside a wrapper script:
 Import-Module PSStreamLogger
 
 # Create plain text file logger
-$fileLogger = New-FileLogger -FilePath "C:\temp\script1.log"
+$fileLogger = New-FileLogger -FilePath "C:\temp\script1.log" -MinimumLogLevel Verbose
 
 # Execute script with logger
 Invoke-CommandWithLogging -ScriptBlock { & "C:\temp\script1.ps1" -Verbose -InformationAction Continue } -Loggers @($fileLogger)
@@ -57,13 +52,13 @@ Invoke-CommandWithLogging -ScriptBlock {
 Configure the log module and invoke a script in one line in PowerShell:
 
 ```powershell
-Import-Module PSStreamLogger; Invoke-CommandWithLogging -ScriptBlock { & 'C:\temp\script1.ps1' -Verbose -InformationAction Continue } -Loggers @(New-FileLogger -FilePath 'C:\temp\script1.log')
+Import-Module PSStreamLogger; Invoke-CommandWithLogging -ScriptBlock { & 'C:\temp\script1.ps1' -Verbose -InformationAction Continue } -Loggers @(New-FileLogger -FilePath 'C:\temp\script1.log' -MinimumLogLevel Verbose)
 ```
 
 Configure the log module and invoke a script in one command-line command:
 
 ```bash
-powershell.exe -Command "& { Import-Module PSStreamLogger; Invoke-CommandWithLogging -ScriptBlock { & 'C:\temp\script1.ps1' -Verbose -InformationAction Continue } -Loggers @(New-FileLogger -FilePath 'C:\temp\script1.log') }"
+powershell.exe -Command "& { Import-Module PSStreamLogger; Invoke-CommandWithLogging -ScriptBlock { & 'C:\temp\script1.ps1' -Verbose -InformationAction Continue } -Loggers @(New-FileLogger -FilePath 'C:\temp\script1.log' -MinimumLogLevel Verbose) }"
 ```
 
 # Targets
