@@ -7,9 +7,6 @@ on:
       environment:
         required: true
         type: string
-    secrets:
-      psGalleryApiKey:
-        required: true
 
 jobs:
 
@@ -31,5 +28,5 @@ jobs:
       shell: pwsh
 
     - name: Publish module to PSGallery
-      run:  Publish-Module -Path .\PSStreamLogger -NuGetApiKey "${{ secrets.psGalleryApiKey }}" -Verbose -WhatIf
+      run:  Publish-Module -Path .\PSStreamLogger -NuGetApiKey "${{ secrets.PSGALLERY_API_KEY }}" -Verbose -WhatIf
       shell: pwsh
