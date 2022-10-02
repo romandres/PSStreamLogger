@@ -23,8 +23,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v1
 
-    - name: Get Version Suffix
+    - name: Set Version Suffix
       run: |
+        $DebugPreference = "Continue"
+
         # Get source branch name
         $sourceBranchName = "${{ github.ref_name }}"
 
@@ -32,7 +34,7 @@ jobs:
 
         # Is this the main branch?
         $isMain = $sourceBranch -in @("main", "master")
-        Write-Host "Is main: '$($isMain)'"
+        Write-Debug "Is main: '$($isMain)'"
 
         # Define prerelease suffix if this is not the main branch
         $prereleaseSuffix = if (-not $isMain) {
@@ -48,8 +50,8 @@ jobs:
           "-"
         }
 
-        Write-Host "Version suffix: '$versionSuffix'"
-        $env:VERSION_SUFFIX = $versionSuffix
+        Write-Debug "Version suffix: '$versionSuffix'"
+        Write-Host "VERSION_SUFFIX=$($versionSuffix)" >> $GITHUB_ENV
       shell: pwsh
 
     - name: Setup .NET
@@ -70,10 +72,16 @@ jobs:
 
     - name: Update module version
       run: |
-        $prerelease = if ($env:VERSION_SUFFIX -ne "-") {
-          $env:VERSION_SUFFIX
+        $params = @{
+          Path = "../artifact/PSStreamLogger.psd1"
+          Version = "0.7.1"
         }
-        Update-ModuleManifest -Path "../artifact/PSStreamLogger.psd1" -Version "0.7.1" -Prerelase $prerelease
+
+        if ($env:VERSION_SUFFIX -ne "-") {
+          $params.Add("Prerelase", $env:VERSION_SUFFIX)
+        }
+
+        Update-ModuleManifest @params
       shell: pwsh
 
     - name: Upload artifact
