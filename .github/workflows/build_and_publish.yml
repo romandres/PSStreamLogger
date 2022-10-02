@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - main
-      - romandres-v1-fullclr
+      - romandres-v1-fullcrl
 
 jobs:
 
