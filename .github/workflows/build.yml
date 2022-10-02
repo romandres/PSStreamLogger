@@ -62,6 +62,18 @@ jobs:
     - name: Publish
       run: dotnet publish src/PSStreamLogger.sln -c Release -f netstandard2.0 -o "publish" --version-suffix "${{ env.VERSION_SUFFIX }}"
 
+    - name: Get Version
+      run: |
+        $DebugPreference = "Continue"
+
+        $assemblyPath = "publish/PSStreamLogger.dll"
+        $productVersion = Get-Item $assemblyPath | Select-Object -ExpandProperty VersionInfo | Select-Object -ExpandProperty ProductVersion
+        $version = ($productVersion -split "-")[0]
+
+        Write-Debug "version: '$version'"
+        "VERSION=$($version.ToString(3))" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
+      shell: pwsh
+
     - name: Create artifact directory
       run: New-Item -ItemType Directory -Path "../artifact/psstreamlogger" -Force
       shell: pwsh
@@ -72,14 +84,9 @@ jobs:
 
     - name: Update module version
       run: |
-        $DebugPreference = "Continue"
-
-        Write-Debug "Version suffix: '$($env:VERSION_SUFFIX)'"
-        Write-Debug "Version suffix: '${{ env.VERSION_SUFFIX }}'"
-
         $params = @{
           "Path" = "../artifact/PSStreamLogger.psd1"
-          "Version" = "0.7.1"
+          "ModuleVersion" = $env:VERSION
         }
 
         if ($env:VERSION_SUFFIX -ne "-") {
