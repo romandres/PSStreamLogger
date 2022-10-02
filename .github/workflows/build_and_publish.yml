@@ -27,7 +27,7 @@ jobs:
 
   publish:
     uses: ./.github/workflows/reusable_publish_release.yml
-    needs: build_coreclr
+    needs: [ 'build_coreclr', 'build_fullclr' ]
     with:
       commit: ${{ github.sha }}
       tag: ${{ needs.build_coreclr.outputs.releaseVersion }}
