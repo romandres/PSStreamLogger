@@ -13,6 +13,11 @@ on:
       artifactName:
         required: true
         type: string
+    outputs:
+      isPrerelease:
+        value: ${{ jobs.build.outputs.isPrerelease != 'False' }}
+      releaseVersion:
+        value: ${{ jobs.build.outputs.releaseVersion }}
 
 jobs:
 

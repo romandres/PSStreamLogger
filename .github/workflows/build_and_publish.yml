@@ -31,7 +31,7 @@ jobs:
     needs: [ 'build_coreclr', 'build_fullclr' ]
     steps:
     - name: Test
-      run: echo ${{ needs.build_coreclr.outputs.isPrerelease == 'True' }} ${{ needs.build_coreclr.outputs.releaseVersion }}
+      run: echo ${{ needs.build_coreclr.outputs.isPrerelease }} ${{ needs.build_coreclr.outputs.releaseVersion }}
 
 
   publish:
@@ -42,4 +42,4 @@ jobs:
     with:
       commit: ${{ github.sha }}
       tag: ${{ needs.build_coreclr.outputs.releaseVersion }}
-      isPrerelease: ${{ needs.build_coreclr.outputs.isPrerelease == 'True' }}
+      isPrerelease: ${{ needs.build_coreclr.outputs.isPrerelease }}
