@@ -1,11 +1,11 @@
-name: Publish Release
+name: Build and Publish Release
 
 on:
 
   push:
     branches:
       - main
-      - romandres-v1-fullcrl
+      - release/*
 
 jobs:
 
