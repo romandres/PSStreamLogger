@@ -1,6 +1,6 @@
 @{
 	# Binary module file associated with this manifest
-	RootModule = 'PSStreamLogger.dll'
+	RootModule = 'PSStreamLogger.psm1'
 
 	GUID = '18b6925b-0c8f-4a14-abfa-c90550c025d7'
 	ModuleVersion = '0.0.0'
@@ -20,4 +20,12 @@
 			)
 		}
 	}
+
+	CmdletsToExport = @(
+		"Invoke-CommandWithLogging"
+		"New-ConsoleLogger"
+		"New-FileLogger"
+		"New-EventLogLogger"
+		"Out-PSStreamLogger"
+	)
 }

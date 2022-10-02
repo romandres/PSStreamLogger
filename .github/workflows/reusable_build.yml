@@ -2,25 +2,41 @@ name: Build
 
 on:
 
-  push:
-    branches:
-      - main
-
-  pull_request:
+  workflow_call:
+    inputs:
+      targetFramework:
+        required: true
+        type: string
+      runsOn:
+        required: true
+        type: string
+      artifactName:
+        required: true
+        type: string
+    outputs:
+      isPrerelease:
+        value: ${{ jobs.build.outputs.isPrerelease != 'False' }}
+      releaseVersion:
+        value: ${{ jobs.build.outputs.releaseVersion }}
 
 jobs:
 
   build:
 
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runsOn }}
+
+    outputs:
+      isPrerelease: ${{ steps.setOutputs.outputs.isPrerelease }}
+      releaseVersion: ${{ steps.setOutputs.outputs.releaseVersion }}
 
     steps:
 
     - name: Checkout
       uses: actions/checkout@v1
 
-    - name: Set version suffix
+    - id: getVersionSuffix
+      name: Set version suffix
       run: |
         $DebugPreference = "Continue"
 
@@ -39,8 +55,11 @@ jobs:
           "-preview"
         }
 
+        $isPrerelease = -not $isMain
+        Write-Debug "Is prerelease: '$($isPrerelease)'"
+
         # Combine prerelease and build meta data to version suffix
-        $versionSuffix = if (-not $isMain) {
+        $versionSuffix = if ($isPrerelease) {
           "$($prereleaseSuffix)$($runId)"
         } else {
           # This means the version suffix will be ignored by the Directory.Build.props
@@ -50,6 +69,8 @@ jobs:
 
         Write-Debug "Version suffix: '$versionSuffix'"
         "VERSION_SUFFIX=$($versionSuffix)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
+        "IS_PRERELEASE=$($isPrerelease)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
+
       shell: pwsh
 
     - name: Setup .NET
@@ -58,18 +79,22 @@ jobs:
         dotnet-version: 6.0.x
 
     - name: Publish
-      run: dotnet publish src/PSStreamLogger.sln -c Release -f netstandard2.0 -o "publish" --version-suffix "${{ env.VERSION_SUFFIX }}"
+      run: dotnet publish src/PSStreamLogger.sln -c Release -f ${{ inputs.targetFramework }} -o "publish" --version-suffix "${{ env.VERSION_SUFFIX }}"
 
-    - name: Get final version from assembly
+    - id: getVersion
+      name: Get final version from assembly
       run: |
         $DebugPreference = "Continue"
 
         $assemblyPath = "publish/PSStreamLogger.dll"
         $productVersion = Get-Item $assemblyPath | Select-Object -ExpandProperty VersionInfo | Select-Object -ExpandProperty ProductVersion
         $version = ($productVersion -split "-")[0]
+        $releaseVersion = "v$($productVersion)"
 
-        Write-Debug "version: '$version'"
+        Write-Debug "Release version: '$releaseVersion'"
+        Write-Debug "Version: '$version'"
         "VERSION=$($version)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
+        "RELEASE_VERSION=$($releaseVersion)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
       shell: pwsh
 
     - name: Create artifact directory
@@ -77,7 +102,7 @@ jobs:
       shell: pwsh
 
     - name: Copy files to artifact directory
-      run: Copy-Item -Path "publish/*" -Destination "../artifact/psstreamlogger" -Include @("*.dll", "*.psd1")
+      run: Copy-Item -Path "publish/*" -Destination "../artifact/psstreamlogger" -Include @("*.dll", "*.psd1", "*.psm1")
       shell: pwsh
 
     - name: Set module version in manifest
@@ -97,25 +122,11 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
-        name: PSStreamLogger
+        name: ${{ inputs.artifactName }}
         path: ../artifact/psstreamlogger
 
-  publish:
-    if: ${{ !startswith(github.ref, 'refs/pull/') }}
-
-    name: Publish
-    environment: psgallery
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-
-    - name: Download artifact
-      uses: actions/download-artifact@v2
-      with:
-        name: PSStreamLogger
-        path: ./PSStreamLogger
-
-    - name: Publish module to PSGallery
-      run:  Publish-Module -Path .\PSStreamLogger -NuGetApiKey "${{ secrets.PSGALLERY_API_KEY }}" -Verbose
-      shell: pwsh
+    - id: setOutputs
+      name: Set ouptuts
+      run: |
+        echo "::set-output name=isPrerelease::${{ env.IS_PRERELEASE }}"
+        echo "::set-output name=releaseVersion::${{ env.RELEASE_VERSION }}"
