@@ -101,7 +101,7 @@ jobs:
         path: ../artifact/psstreamlogger
 
   publish:
-    if: github.ref == 'refs/heads/main' || startswith(github.ref, 'release/')
+    if: ${{ !startswith(github.ref, 'refs/pull/') }}
 
     name: Publish
     environment: psgallery
