@@ -70,8 +70,8 @@ jobs:
 
     - name: Update module version
       run: |
-        $prerelease = if (${{ env.VERSION_SUFFIX }} -ne "-") {
-          ${{ env.VERSION_SUFFIX }}
+        $prerelease = if ($env:VERSION_SUFFIX -ne "-") {
+          $env:VERSION_SUFFIX
         }
         Update-ModuleManifest -Path "../artifact/PSStreamLogger.psd1" -Version "0.7.1" -Prerelase $prerelease
       shell: pwsh
