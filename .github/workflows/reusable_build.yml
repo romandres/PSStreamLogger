@@ -74,7 +74,9 @@ jobs:
         $productVersion = Get-Item $assemblyPath | Select-Object -ExpandProperty VersionInfo | Select-Object -ExpandProperty ProductVersion
         $version = ($productVersion -split "-")[0]
 
+        Write-Debug "version (full): '$productVersion'"
         Write-Debug "version: '$version'"
+        "VERSION_FULL=$($productVersion)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
         "VERSION=$($version)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
       shell: pwsh
 

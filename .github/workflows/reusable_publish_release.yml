@@ -1,0 +1,58 @@
+name: Publish Release
+
+on:
+
+  workflow_call:
+    inputs:
+      commit:
+        required: true
+        type: string
+      tag:
+        required: true
+        type: string
+      isPrerelease:
+        required: true
+        type: boolean
+
+jobs:
+
+  publish:
+    if: ${{ !startswith(github.ref, 'refs/pull/') }}
+
+    name: Publish
+    needs: [ 'build_coreclr', 'build_fullclr' ]
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Download CoreCLR artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: PSStreamLogger-CoreCLR
+        path: ./module/coreclr
+
+    - name: Download FullCLR artifact
+      uses: actions/download-artifact@v3
+      with:
+        name: PSStreamLogger-FullCLR
+        path: ./module/fullclr
+
+    - name: Arrange manifest files
+      run: |
+        Move-Item -Path "./module/coreclr/*" -Destination "./module" -Include @("*.psm1", "*.psd1")
+        Remove-Item -Path "./module/fullclr/*" -Include @("*.psm1", "*.psd1")
+      shell: pwsh
+
+    - name: Create archive
+      run: Compress-Archive -Path "./module" -Destination "./PSStreamLogger.zip" -Verbose
+      shell: pwsh
+
+    - uses: ncipollo/release-action@v1
+      name: Create release
+      with:
+        commit: ${{ inputs.commit }}
+        tag: ${{ inputs.tag }}
+        artifacts: "./PSStreamLogger.zip"
+        prerelease: ${{ inputs.isPrerelease }}
+        draft: true
+        token: ${{ secrets.YOUR_GITHUB_TOKEN }}
