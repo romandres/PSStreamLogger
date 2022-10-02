@@ -11,6 +11,8 @@
 		PSData = @{
 			ProjectURI = 'https://github.com/romandres/PSStreamLogger'
 
+			LicenseURI = 'https://github.com/romandres/PSStreamLogger/blob/main/LICENSE'
+
 			Tags = @(
 				'PSEdition_Desktop'
 				'PSEdition_Core'
