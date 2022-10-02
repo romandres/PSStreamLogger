@@ -10,6 +10,9 @@ on:
       tag:
         required: true
         type: string
+    secrets:
+      PSGALLERY_API_KEY:
+        required: true
 
 jobs:
 

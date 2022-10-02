@@ -14,3 +14,5 @@ jobs:
     with:
       environment: psgallery
       tag: ${{ github.event.release.tag_name }}
+    secrets:
+      PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
