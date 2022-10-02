@@ -42,7 +42,7 @@ jobs:
       shell: pwsh
 
     - name: Create archive
-      run: Compress-Archive -Path "./module/" -Destination "./PSStreamLogger.zip" -Verbose
+      run: Compress-Archive -Path "./module/*" -Destination "./PSStreamLogger.zip" -Verbose
       shell: pwsh
 
     - uses: ncipollo/release-action@v1
