@@ -51,7 +51,7 @@ jobs:
         }
 
         Write-Debug "Version suffix: '$versionSuffix'"
-        Write-Host "VERSION_SUFFIX=$($versionSuffix)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
+        "VERSION_SUFFIX=$($versionSuffix)" | Out-File -FilePath $env:GITHUB_ENV -Encoding UTF8 -Append
       shell: pwsh
 
     - name: Setup .NET
