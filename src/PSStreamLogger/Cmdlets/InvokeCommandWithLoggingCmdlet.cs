@@ -21,6 +21,9 @@ namespace PSStreamLoggerModule
 
         [Parameter]
         public SwitchParameter UseNewRunspace { get; set; }
+        
+        [Parameter]
+        public SwitchParameter DisableStreamConfiguration { get; set; }
 
         private LogEventLevel minimumLogLevel = LogEventLevel.Information;
         
@@ -75,16 +78,20 @@ namespace PSStreamLoggerModule
             Action exec;
             if (!UseNewRunspace.IsPresent)
             {
-                var streamConfiguration = PowerShellExecutor.GetStreamConfiguration(minimumLogLevel);
                 StringBuilder logLevelCommandBuilder = new StringBuilder();
-                foreach (var streamConfigurationItem in streamConfiguration)
+                
+                if (!DisableStreamConfiguration.IsPresent)
                 {
-                    logLevelCommandBuilder.Append($"${streamConfigurationItem.Key} = \"{streamConfigurationItem.Value}\"; ");
+                    var streamConfiguration = PowerShellExecutor.GetStreamConfiguration(minimumLogLevel);
+                    foreach (var streamConfigurationItem in streamConfiguration)
+                    {
+                        logLevelCommandBuilder.Append($"${streamConfigurationItem.Key} = \"{streamConfigurationItem.Value}\"; ");
+                    }
                 }
 
                 exec = () =>
                 {
-                    InvokeCommand.InvokeScript($"{logLevelCommandBuilder} & {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger $input[0]", true, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
+                    InvokeCommand.InvokeScript($"{logLevelCommandBuilder}& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger $input[0]", true, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
                 };
             }
             else
@@ -92,7 +99,7 @@ namespace PSStreamLoggerModule
                 // Get current directory (Environment.CurrentDirectory does not work when the current directory was changed after starting the process)
                 var currentPath = InvokeCommand.InvokeScript("Get-Location")[0].BaseObject.ToString();
 
-                powerShellExecutor = new PowerShellExecutor(dataRecordLogger!, minimumLogLevel, currentPath);
+                powerShellExecutor = new PowerShellExecutor(dataRecordLogger!, DisableStreamConfiguration.IsPresent, minimumLogLevel, currentPath);
 
                 exec = () =>
                 {
