@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Management.Automation;
 using Serilog;
 using Serilog.Templates;
@@ -38,10 +39,16 @@ namespace PSStreamLoggerModule
 
         protected override void EndProcessing()
         {
+            string filePath = FilePath!;
+            if (!Path.IsPathRooted(filePath))
+            {
+                filePath = Path.Combine(SessionState.Path.CurrentFileSystemLocation.Path, filePath);
+            }
+
             var loggerConfiguration = new Serilog.LoggerConfiguration()
                 .MinimumLevel.Is(MinimumLogLevel)
                 .WriteTo.File(
-                    path: FilePath!,
+                    path: filePath,
                     formatter: new ExpressionTemplate(template: ExpressionTemplate, formatProvider: CultureInfo.CurrentCulture),
                     fileSizeLimitBytes: FileSizeLimit,
                     retainedFileCountLimit: RetainedFileCountLimit,
