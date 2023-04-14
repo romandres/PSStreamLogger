@@ -52,7 +52,7 @@ namespace PSStreamLoggerModule
                     .Filter.ByExcluding(FilterExcludeExpression);
             }
 
-            WriteObject(loggerConfiguration.CreateLogger());
+            WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger()));
         }
     }
 }
