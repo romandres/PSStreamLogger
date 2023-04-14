@@ -9,7 +9,6 @@ using Serilog.Events;
 
 namespace PSStreamLoggerModule
 {
-
     [Cmdlet(VerbsLifecycle.Invoke, "CommandWithLogging")]
     public class InvokeCommandWithLoggingCmdlet : PSCmdlet, IDisposable
     {
@@ -18,9 +17,9 @@ namespace PSStreamLoggerModule
 
         [Parameter(Mandatory = true)]
         public Logger[]? Loggers { get; set; }
-
+        
         [Parameter]
-        public SwitchParameter UseNewRunspace { get; set; }
+        public RunMode RunMode { get; set; } = RunMode.NewScope;
         
         [Parameter]
         public SwitchParameter DisableStreamConfiguration { get; set; }
@@ -76,7 +75,7 @@ namespace PSStreamLoggerModule
             PSDataCollection<PSObject> output = new PSDataCollection<PSObject>();
 
             Action exec;
-            if (!UseNewRunspace.IsPresent)
+            if (RunMode != RunMode.NewRunspace)
             {
                 StringBuilder logLevelCommandBuilder = new StringBuilder();
                 
@@ -91,7 +90,7 @@ namespace PSStreamLoggerModule
 
                 exec = () =>
                 {
-                    InvokeCommand.InvokeScript($"{logLevelCommandBuilder}& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger $input[0]", true, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
+                    InvokeCommand.InvokeScript($"{logLevelCommandBuilder}& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger $input[0]", RunMode == RunMode.NewScope, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
                 };
             }
             else
@@ -133,7 +132,7 @@ namespace PSStreamLoggerModule
             }
 
             scriptLogger = loggerFactory.CreateLogger("PSScriptBlock");
-            dataRecordLogger = new DataRecordLogger(scriptLogger, UseNewRunspace.IsPresent ? 0 : 2);
+            dataRecordLogger = new DataRecordLogger(scriptLogger, RunMode == RunMode.NewRunspace ? 0 : 2);
         }
     }
 }
