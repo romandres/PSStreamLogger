@@ -8,20 +8,23 @@ namespace PSStreamLoggerModule
 {
     internal class AzureApplicationInsightsTraceTelemetryConverter : TraceTelemetryConverter
     {
-        private readonly string? scriptName;
+        private readonly IDictionary<string, string>? properties;
 
-        public AzureApplicationInsightsTraceTelemetryConverter(string? scriptName)
+        public AzureApplicationInsightsTraceTelemetryConverter(IDictionary<string, string>? properties)
         {
-            this.scriptName = scriptName;
+            this.properties = properties;
         }
 
         public override IEnumerable<ITelemetry> Convert(LogEvent logEvent, IFormatProvider formatProvider)
         {
             foreach (ITelemetry telemetry in base.Convert(logEvent, formatProvider))
             {
-                if (!string.IsNullOrWhiteSpace(scriptName))
+                if (properties is object)
                 {
-                    telemetry.Context.GlobalProperties.Add("ScriptName", scriptName);
+                    foreach (var property in properties)
+                    {
+                        telemetry.Context.GlobalProperties.Add(property.Key, property.Value);
+                    }
                 }
 
                 yield return telemetry;

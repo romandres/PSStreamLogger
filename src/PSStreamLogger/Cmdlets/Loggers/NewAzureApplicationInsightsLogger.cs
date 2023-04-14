@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management.Automation;
@@ -18,7 +19,7 @@ namespace PSStreamLoggerModule
         public string? ConnectionString { get; set; }
 
         [Parameter()]
-        public string? ScriptName { get; set; }
+        public Hashtable? Properties { get; set; }
 
         [Parameter()]
         public string? FilterIncludeOnlyExpression { get; set; }
@@ -35,7 +36,7 @@ namespace PSStreamLoggerModule
             .MinimumLevel.Is(MinimumLogLevel)
                 .WriteTo.ApplicationInsights(
                      connectionString: ConnectionString,
-                     telemetryConverter: new AzureApplicationInsightsTraceTelemetryConverter(ScriptName),
+                     telemetryConverter: (new AzureApplicationInsightsTraceTelemetryConverter(Properties?.Cast<DictionaryEntry>().ToDictionary(x => x.Key.ToString(), x => x.Value.ToString()))),
                      restrictedToMinimumLevel: MinimumLogLevel)
                 .Enrich.FromLogContext();
 
