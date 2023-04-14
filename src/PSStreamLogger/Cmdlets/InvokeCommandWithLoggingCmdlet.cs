@@ -77,9 +77,7 @@ namespace PSStreamLoggerModule
             }
             else
             {
-                // Get current directory (Environment.CurrentDirectory does not work when the current directory was changed after starting the process)
-                var currentPath = InvokeCommand.InvokeScript("Get-Location")[0].BaseObject.ToString();
-
+                string currentPath = SessionState.Path.CurrentLocation.Path;
                 powerShellExecutor = new PowerShellExecutor(dataRecordLogger!, currentPath);
 
                 exec = () =>
