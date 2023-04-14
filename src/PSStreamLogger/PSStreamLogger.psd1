@@ -23,6 +23,7 @@
 
 	CmdletsToExport = @(
 		"Invoke-CommandWithLogging"
+		"New-AzureApplicationInsightsLogger"
 		"New-ConsoleLogger"
 		"New-FileLogger"
 		"New-EventLogLogger"

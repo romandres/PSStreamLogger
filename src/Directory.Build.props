@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!--Version-->
-    <VersionPrefix>0.7.1</VersionPrefix>
+    <VersionPrefix>0.8.0</VersionPrefix>
 
     <!--Metadata-->
     <Authors>romandres</Authors>
