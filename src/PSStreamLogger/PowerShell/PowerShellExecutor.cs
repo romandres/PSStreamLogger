@@ -52,6 +52,7 @@ namespace PSStreamLoggerModule
                 { "DebugPreference", minimumLogLevel <= LogEventLevel.Debug ? "Continue" : "SilentlyContinue" },
                 { "InformationPreference", minimumLogLevel <= LogEventLevel.Information ? "Continue" : "SilentlyContinue" },
                 { "WarningPreference", minimumLogLevel <= LogEventLevel.Warning ? "Continue" : "SilentlyContinue" },
+                { "ErrorActionPreference", minimumLogLevel <= LogEventLevel.Fatal ? "Continue" : "SilentlyContinue" },
             };
         }
 
