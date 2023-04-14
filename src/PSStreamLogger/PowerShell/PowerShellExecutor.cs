@@ -14,7 +14,7 @@ namespace PSStreamLoggerModule
 
         private readonly DataRecordLogger dataRecordLogger;
 
-        public PowerShellExecutor(DataRecordLogger dataRecordLogger, Serilog.Events.LogEventLevel minimumLogLevel, string workingDirectory)
+        public PowerShellExecutor(DataRecordLogger dataRecordLogger, bool disableStreamConfiguration, Serilog.Events.LogEventLevel minimumLogLevel, string workingDirectory)
         {
             this.dataRecordLogger = dataRecordLogger;
 
@@ -26,10 +26,13 @@ namespace PSStreamLoggerModule
             powerShell = PowerShell.Create();
             powerShell.Runspace = runspace;
 
-            var streamConfiguration = GetStreamConfiguration(minimumLogLevel);
-            foreach (var streamConfigurationItem in streamConfiguration)
+            if (!disableStreamConfiguration)
             {
-                powerShell.Runspace.SessionStateProxy.SetVariable(streamConfigurationItem.Key, streamConfigurationItem.Value);
+                var streamConfiguration = GetStreamConfiguration(minimumLogLevel);
+                foreach (var streamConfigurationItem in streamConfiguration)
+                {
+                    powerShell.Runspace.SessionStateProxy.SetVariable(streamConfigurationItem.Key, streamConfigurationItem.Value);
+                }
             }
 
             powerShell.Runspace.SessionStateProxy.Path.SetLocation(workingDirectory);

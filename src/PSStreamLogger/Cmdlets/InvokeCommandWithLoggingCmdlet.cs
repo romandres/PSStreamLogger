@@ -22,6 +22,9 @@ namespace PSStreamLoggerModule
         [Parameter]
         public RunMode RunMode { get; set; } = RunMode.NewScope;
 
+        [Parameter]
+        public SwitchParameter DisableStreamConfiguration { get; set; }
+
         private LogEventLevel minimumLogLevel = LogEventLevel.Information;
         
         private ILoggerFactory? loggerFactory;
@@ -75,22 +78,26 @@ namespace PSStreamLoggerModule
             Action exec;
             if (RunMode != RunMode.NewRunspace)
             {
-                var streamConfiguration = PowerShellExecutor.GetStreamConfiguration(minimumLogLevel);
                 StringBuilder logLevelCommandBuilder = new StringBuilder();
-                foreach (var streamConfigurationItem in streamConfiguration)
+                
+                if (!DisableStreamConfiguration.IsPresent)
                 {
-                    logLevelCommandBuilder.Append($"${streamConfigurationItem.Key} = \"{streamConfigurationItem.Value}\"; ");
+                    var streamConfiguration = PowerShellExecutor.GetStreamConfiguration(minimumLogLevel);
+                    foreach (var streamConfigurationItem in streamConfiguration)
+                    {
+                        logLevelCommandBuilder.Append($"${streamConfigurationItem.Key} = \"{streamConfigurationItem.Value}\"; ");
+                    }
                 }
 
                 exec = () =>
                 {
-                    InvokeCommand.InvokeScript($"{logLevelCommandBuilder} & {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger $input[0]", RunMode == RunMode.NewScope, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
+                    InvokeCommand.InvokeScript($"{logLevelCommandBuilder}& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger $input[0]", RunMode == RunMode.NewScope, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
                 };
             }
             else
             {
                 string currentPath = SessionState.Path.CurrentLocation.Path;
-                powerShellExecutor = new PowerShellExecutor(dataRecordLogger!, minimumLogLevel, currentPath);
+                powerShellExecutor = new PowerShellExecutor(dataRecordLogger!, DisableStreamConfiguration.IsPresent, minimumLogLevel, currentPath);
 
                 exec = () =>
                 {
