@@ -6,11 +6,11 @@ using Serilog.Sinks.ApplicationInsights.TelemetryConverters;
 
 namespace PSStreamLoggerModule
 {
-    internal class CustomConverter : TraceTelemetryConverter
+    internal class AzureApplicationInsightsTraceTelemetryConverter : TraceTelemetryConverter
     {
         private readonly string? scriptName;
 
-        public CustomConverter(string? scriptName)
+        public AzureApplicationInsightsTraceTelemetryConverter(string? scriptName)
         {
             this.scriptName = scriptName;
         }

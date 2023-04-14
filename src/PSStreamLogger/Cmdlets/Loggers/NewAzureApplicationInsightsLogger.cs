@@ -35,7 +35,7 @@ namespace PSStreamLoggerModule
             .MinimumLevel.Is(MinimumLogLevel)
                 .WriteTo.ApplicationInsights(
                      connectionString: ConnectionString,
-                     telemetryConverter: new CustomConverter(ScriptName),
+                     telemetryConverter: new AzureApplicationInsightsTraceTelemetryConverter(ScriptName),
                      restrictedToMinimumLevel: MinimumLogLevel)
                 .Enrich.FromLogContext();
 
