@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
@@ -19,7 +19,7 @@ namespace PSStreamLoggerModule
         public Serilog.Core.Logger[]? Loggers { get; set; }
 
         [Parameter]
-        public SwitchParameter UseSeparateSession { get; set; }
+        public RunMode RunMode { get; set; } = RunMode.NewScope;
 
         private ILoggerFactory? loggerFactory;
 
@@ -68,11 +68,11 @@ namespace PSStreamLoggerModule
         protected override void EndProcessing()
         {
             Func<Collection<PSObject>> exec;
-            if (!UseSeparateSession.IsPresent)
+            if (RunMode != RunMode.NewRunspace)
             {
                 exec = () =>
                 {
-                    return InvokeCommand.InvokeScript($"& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger $input[0]", false, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
+                    return InvokeCommand.InvokeScript($"& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger $input[0]", RunMode == RunMode.NewScope, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
                 };
             }
             else
@@ -110,7 +110,7 @@ namespace PSStreamLoggerModule
             }
 
             scriptLogger = loggerFactory.CreateLogger("PSScriptBlock");
-            dataRecordLogger = new DataRecordLogger(scriptLogger, UseSeparateSession.IsPresent ? 0 : 2);
+            dataRecordLogger = new DataRecordLogger(scriptLogger, RunMode == RunMode.NewRunspace ? 0 : 2);
         }
     }
 }
