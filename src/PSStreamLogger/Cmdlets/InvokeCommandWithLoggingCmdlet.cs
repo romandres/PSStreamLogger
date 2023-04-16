@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
 
 namespace PSStreamLoggerModule
 {
@@ -16,11 +18,16 @@ namespace PSStreamLoggerModule
         public ScriptBlock? ScriptBlock { get; set; }
 
         [Parameter(Mandatory = true)]
-        public Serilog.Core.Logger[]? Loggers { get; set; }
+        public Logger[]? Loggers { get; set; }
 
         [Parameter]
         public RunMode RunMode { get; set; } = RunMode.NewScope;
 
+        [Parameter]
+        public SwitchParameter DisableStreamConfiguration { get; set; }
+
+        private LogEventLevel minimumLogLevel;
+        
         private ILoggerFactory? loggerFactory;
 
         private Microsoft.Extensions.Logging.ILogger? scriptLogger;
@@ -49,7 +56,7 @@ namespace PSStreamLoggerModule
                     {
                         foreach (var logger in Loggers)
                         {
-                            logger.Dispose();
+                            logger.SerilogLogger.Dispose();
                         }
                     }
 
@@ -68,17 +75,30 @@ namespace PSStreamLoggerModule
         protected override void EndProcessing()
         {
             Func<Collection<PSObject>> exec;
+
+            var streamConfiguration = !DisableStreamConfiguration.IsPresent ? new PSStreamConfiguration(minimumLogLevel) : null;
+
             if (RunMode != RunMode.NewRunspace)
             {
+                StringBuilder logLevelCommandBuilder = new StringBuilder();
+                
+                if (streamConfiguration is object)
+                {
+                    foreach (var streamConfigurationItem in streamConfiguration.StreamConfiguration)
+                    {
+                        logLevelCommandBuilder.Append($"${streamConfigurationItem.Key} = \"{streamConfigurationItem.Value}\"; ");
+                    }
+                }
+
                 exec = () =>
                 {
-                    return InvokeCommand.InvokeScript($"& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger $input[0]", RunMode == RunMode.NewScope, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
+                    return InvokeCommand.InvokeScript($"{logLevelCommandBuilder}& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger $input[0]", RunMode == RunMode.NewScope, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
                 };
             }
             else
             {
                 string currentPath = SessionState.Path.CurrentLocation.Path;
-                powerShellExecutor = new PowerShellExecutor(dataRecordLogger!, currentPath);
+                powerShellExecutor = new PowerShellExecutor(dataRecordLogger!, streamConfiguration, currentPath);
 
                 exec = () =>
                 {
@@ -101,10 +121,16 @@ namespace PSStreamLoggerModule
         private void PrepareLogging()
         {
             loggerFactory = new LoggerFactory();
-
+            
+            minimumLogLevel = Serilog.Events.LogEventLevel.Information;
             foreach (var logger in Loggers!)
             {
-                loggerFactory.AddSerilog(logger);
+                if (logger.MinimumLogLevel < minimumLogLevel)
+                {
+                    minimumLogLevel = logger.MinimumLogLevel;
+                }
+
+                loggerFactory.AddSerilog(logger.SerilogLogger);
             }
 
             scriptLogger = loggerFactory.CreateLogger("PSScriptBlock");
