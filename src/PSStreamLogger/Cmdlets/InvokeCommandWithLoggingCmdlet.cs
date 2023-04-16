@@ -26,7 +26,7 @@ namespace PSStreamLoggerModule
         [Parameter]
         public SwitchParameter DisableStreamConfiguration { get; set; }
 
-        private LogEventLevel minimumLogLevel = LogEventLevel.Information;
+        private LogEventLevel minimumLogLevel;
         
         private ILoggerFactory? loggerFactory;
 
