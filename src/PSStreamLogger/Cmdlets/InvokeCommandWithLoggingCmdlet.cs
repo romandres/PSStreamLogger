@@ -75,14 +75,16 @@ namespace PSStreamLoggerModule
         protected override void EndProcessing()
         {
             Func<Collection<PSObject>> exec;
+
+            var streamConfiguration = !DisableStreamConfiguration.IsPresent ? new PSStreamConfiguration(minimumLogLevel) : null;
+
             if (RunMode != RunMode.NewRunspace)
             {
                 StringBuilder logLevelCommandBuilder = new StringBuilder();
                 
-                if (!DisableStreamConfiguration.IsPresent)
+                if (streamConfiguration is object)
                 {
-                    var streamConfiguration = PowerShellExecutor.GetStreamConfiguration(minimumLogLevel);
-                    foreach (var streamConfigurationItem in streamConfiguration)
+                    foreach (var streamConfigurationItem in streamConfiguration.StreamConfiguration)
                     {
                         logLevelCommandBuilder.Append($"${streamConfigurationItem.Key} = \"{streamConfigurationItem.Value}\"; ");
                     }
@@ -96,7 +98,7 @@ namespace PSStreamLoggerModule
             else
             {
                 string currentPath = SessionState.Path.CurrentLocation.Path;
-                powerShellExecutor = new PowerShellExecutor(dataRecordLogger!, DisableStreamConfiguration.IsPresent, minimumLogLevel, currentPath);
+                powerShellExecutor = new PowerShellExecutor(dataRecordLogger!, streamConfiguration, currentPath);
 
                 exec = () =>
                 {

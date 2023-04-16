@@ -15,7 +15,7 @@ namespace PSStreamLoggerModule
 
         private readonly DataRecordLogger dataRecordLogger;
 
-        public PowerShellExecutor(DataRecordLogger dataRecordLogger, bool disableStreamConfiguration, Serilog.Events.LogEventLevel minimumLogLevel, string workingDirectory)
+        public PowerShellExecutor(DataRecordLogger dataRecordLogger, PSStreamConfiguration? streamConfiguration, string workingDirectory)
         {
             this.dataRecordLogger = dataRecordLogger;
 
@@ -27,10 +27,9 @@ namespace PSStreamLoggerModule
             powerShell = PowerShell.Create();
             powerShell.Runspace = runspace;
 
-            if (!disableStreamConfiguration)
+            if (streamConfiguration is object)
             {
-                var streamConfiguration = GetStreamConfiguration(minimumLogLevel);
-                foreach (var streamConfigurationItem in streamConfiguration)
+                foreach (var streamConfigurationItem in streamConfiguration.StreamConfiguration)
                 {
                     powerShell.Runspace.SessionStateProxy.SetVariable(streamConfigurationItem.Key, streamConfigurationItem.Value);
                 }
@@ -43,18 +42,6 @@ namespace PSStreamLoggerModule
             powerShell.Streams.Information.DataAdded += Information_DataAdded;
             powerShell.Streams.Error.DataAdded += Error_DataAdded;
             powerShell.Streams.Debug.DataAdded += Debug_DataAdded;
-        }
-        
-        public static IDictionary<string, string> GetStreamConfiguration(Serilog.Events.LogEventLevel minimumLogLevel)
-        {
-            return new Dictionary<string, string>
-            {
-                { "VerbosePreference", minimumLogLevel <= LogEventLevel.Verbose ? "Continue" : "SilentlyContinue" },
-                { "DebugPreference", minimumLogLevel <= LogEventLevel.Debug ? "Continue" : "SilentlyContinue" },
-                { "InformationPreference", minimumLogLevel <= LogEventLevel.Information ? "Continue" : "SilentlyContinue" },
-                { "WarningPreference", minimumLogLevel <= LogEventLevel.Warning ? "Continue" : "SilentlyContinue" },
-                { "ErrorActionPreference", minimumLogLevel <= LogEventLevel.Fatal ? "Continue" : "SilentlyContinue" },
-            };
         }
 
         public Collection<PSObject> Execute(string script)
