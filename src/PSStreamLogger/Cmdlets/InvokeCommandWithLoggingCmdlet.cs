@@ -17,7 +17,7 @@ namespace PSStreamLoggerModule
         [Parameter(Mandatory = true)]
         public ScriptBlock? ScriptBlock { get; set; }
 
-        [Parameter(Mandatory = true)]
+        [Parameter()]
         public Logger[]? Loggers { get; set; }
 
         [Parameter]
@@ -122,7 +122,13 @@ namespace PSStreamLoggerModule
         {
             loggerFactory = new LoggerFactory();
             
-            minimumLogLevel = Serilog.Events.LogEventLevel.Information;
+            minimumLogLevel = Logger.DefaultMinimumLogLevel;
+
+            Loggers ??= new[]
+            {
+                NewConsoleLogger.CreateDefaultLogger()
+            };
+            
             foreach (var logger in Loggers!)
             {
                 if (logger.MinimumLogLevel < minimumLogLevel)
