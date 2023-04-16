@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
+using Serilog.Events;
 
 namespace PSStreamLoggerModule
 {
@@ -13,7 +15,7 @@ namespace PSStreamLoggerModule
 
         private readonly DataRecordLogger dataRecordLogger;
 
-        public PowerShellExecutor(DataRecordLogger dataRecordLogger, string workingDirectory)
+        public PowerShellExecutor(DataRecordLogger dataRecordLogger, PSStreamConfiguration? streamConfiguration, string workingDirectory)
         {
             this.dataRecordLogger = dataRecordLogger;
 
@@ -24,6 +26,14 @@ namespace PSStreamLoggerModule
 
             powerShell = PowerShell.Create();
             powerShell.Runspace = runspace;
+
+            if (streamConfiguration is object)
+            {
+                foreach (var streamConfigurationItem in streamConfiguration.StreamConfiguration)
+                {
+                    powerShell.Runspace.SessionStateProxy.SetVariable(streamConfigurationItem.Key, streamConfigurationItem.Value);
+                }
+            }
 
             powerShell.Runspace.SessionStateProxy.Path.SetLocation(workingDirectory);
 
