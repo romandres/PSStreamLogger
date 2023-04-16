@@ -26,7 +26,7 @@ namespace PSStreamLoggerModule
         public RollingInterval RollingInterval { get; set; } = RollingInterval.Infinite;
 
         [Parameter()]
-        public string ExpressionTemplate { get; set; } = $"[{{@t:yyyy-MM-dd HH:mm:ss.fffzz}} {{@l:u3}}] {{@m:lj}}{Environment.NewLine}{{{DataRecordLogger.PSErrorDetailsKey}}}";
+        public string ExpressionTemplate { get; set; } = Logger.DefaultExpressionTemplate;
 
         [Parameter()]
         public string? FilterIncludeOnlyExpression { get; set; }
@@ -35,7 +35,7 @@ namespace PSStreamLoggerModule
         public string? FilterExcludeExpression { get; set; }
 
         [Parameter()]
-        public Serilog.Events.LogEventLevel MinimumLogLevel { get; set; } = Serilog.Events.LogEventLevel.Information;
+        public Serilog.Events.LogEventLevel MinimumLogLevel { get; set; } = Logger.DefaultMinimumLogLevel;
 
         protected override void EndProcessing()
         {
