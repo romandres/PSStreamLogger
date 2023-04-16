@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Text;
@@ -73,9 +74,7 @@ namespace PSStreamLoggerModule
 
         protected override void EndProcessing()
         {
-            PSDataCollection<PSObject> output = new PSDataCollection<PSObject>();
-
-            Action exec;
+            Func<Collection<PSObject>> exec;
             if (RunMode != RunMode.NewRunspace)
             {
                 StringBuilder logLevelCommandBuilder = new StringBuilder();
@@ -91,7 +90,7 @@ namespace PSStreamLoggerModule
 
                 exec = () =>
                 {
-                    InvokeCommand.InvokeScript($"{logLevelCommandBuilder}& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger $input[0]", RunMode == RunMode.NewScope, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
+                    return InvokeCommand.InvokeScript($"{logLevelCommandBuilder}& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger $input[0]", RunMode == RunMode.NewScope, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
                 };
             }
             else
@@ -101,13 +100,13 @@ namespace PSStreamLoggerModule
 
                 exec = () =>
                 {
-                    powerShellExecutor.Execute(ScriptBlock!.ToString(), output);
+                    return powerShellExecutor.Execute(ScriptBlock!.ToString());
                 };
             }
 
             try
             {
-                exec.Invoke();
+                var output = exec.Invoke();
                 WriteObject(output, true);
             }
             catch (RuntimeException ex)

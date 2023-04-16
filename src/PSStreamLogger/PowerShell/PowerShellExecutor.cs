@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using Serilog.Events;
@@ -56,11 +57,11 @@ namespace PSStreamLoggerModule
             };
         }
 
-        public void Execute(string script, PSDataCollection<PSObject> output)
+        public Collection<PSObject> Execute(string script)
         {
             powerShell.AddScript(script);
 
-            Execute(output);
+            return Execute();
         }
 
         public void Dispose()
@@ -82,9 +83,9 @@ namespace PSStreamLoggerModule
             }
         }
 
-        private void Execute(PSDataCollection<PSObject> output)
+        private Collection<PSObject> Execute()
         {
-            powerShell.Invoke(null, output);
+            return powerShell.Invoke();
         }
 
         private void Debug_DataAdded(object sender, DataAddedEventArgs e)
