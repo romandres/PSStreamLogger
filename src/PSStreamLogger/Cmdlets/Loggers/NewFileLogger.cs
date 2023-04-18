@@ -16,8 +16,8 @@ namespace PSStreamLoggerModule
     public class NewFileLogger : NewTextLoggerCmldet
     {
         /// <summary>
-        /// <para type="description">The log file path.</para>
-        /// <para type="description">For relative paths the current working directory will be used as root path.</para>
+        /// <para type="description">The log file path (absolute or relative).</para>
+        /// <para type="description">For relative paths the current working directory will be used as the root path.</para>
         /// </summary>
         [Parameter(Mandatory = true)]
         public string? FilePath { get; set; }
@@ -41,8 +41,8 @@ namespace PSStreamLoggerModule
         public SwitchParameter RollOnFileSizeLimit { get; set; }
 
         /// <summary>
-        /// <para type="description">The rolling time interval to use.</para>
-        /// <para type="description">Infinite = File will not roll (no new log file will be created) on a time interval.</para>
+        /// <para type="description">The rolling time-based interval to use for the log file.</para>
+        /// <para type="description">Infinite = File will not roll (no new log file will be created) on a time-based interval.</para>
         /// </summary>
         [Parameter()]
         public RollingInterval RollingInterval { get; set; } = RollingInterval.Infinite;
