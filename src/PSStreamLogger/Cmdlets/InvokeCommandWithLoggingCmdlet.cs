@@ -74,8 +74,13 @@ namespace PSStreamLoggerModule
                     {
                         foreach (var logger in Loggers)
                         {
-                            logger.SerilogLogger.Dispose();
+                            logger.SerilogLogger?.Dispose();
+                            logger.SerilogLogger = null;
                         }
+                        
+#if DEBUG
+                        Console.WriteLine("DEBUG: Disposed loggers");
+#endif
                     }
 
                     powerShellExecutor?.Dispose();
@@ -149,6 +154,11 @@ namespace PSStreamLoggerModule
             
             foreach (var logger in Loggers!)
             {
+                if (logger.SerilogLogger is null)
+                {
+                    throw new InvalidOperationException($"Logger was disposed and cannot be reused");
+                }
+                
                 if (logger.MinimumLogLevel < minimumLogLevel)
                 {
                     minimumLogLevel = logger.MinimumLogLevel;
