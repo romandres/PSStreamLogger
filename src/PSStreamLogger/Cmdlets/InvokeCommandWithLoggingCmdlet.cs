@@ -10,19 +10,37 @@ using Serilog.Events;
 
 namespace PSStreamLoggerModule
 {
-
+    /// <summary>
+    /// <para type="synopsis">Executes a command and logs PowerShell stream output.</para>
+    /// <para type="description">Executes a command and sends data written into PowerShell streams (Verbose, Debug, Information, Warning, Error) as log events to the configured loggers.</para>
+    /// <para type="description">Output is passed through to the caller.</para>
+    /// <para type="type">Cmdlet</para>
+    /// </summary>
     [Cmdlet(VerbsLifecycle.Invoke, "CommandWithLogging")]
     public class InvokeCommandWithLoggingCmdlet : PSCmdlet, IDisposable
     {
+        /// <summary>
+        /// <para type="description">The script block to execute.</para>
+        /// </summary>
         [Parameter(Mandatory = true)]
         public ScriptBlock? ScriptBlock { get; set; }
 
+        /// <summary>
+        /// <para type="description">The loggers to send log events to. If no loggers are configured, a console logger with minimum log level information will be used.</para>
+        /// </summary>
         [Parameter()]
         public Logger[]? Loggers { get; set; }
 
+        /// <summary>
+        /// <para type="description">The mode to execute the script block. NewScope executes the script block in a new scope (default), CurrentScope executes it in the current scope (in the same scope this Cmdlet is executed from) and NewRunspace executes it in a new PowerShell runspace.</para>
+        /// </summary>
         [Parameter]
         public RunMode RunMode { get; set; } = RunMode.NewScope;
 
+        /// <summary>
+        /// <para type="description">Disable the automatic PowerShell stream configuration. based on the lowest log level.</para>
+        /// <para type="description">By default the PowerShell streams are configured based on the lowest log level across all loggers.</para>
+        /// </summary>
         [Parameter]
         public SwitchParameter DisableStreamConfiguration { get; set; }
 
