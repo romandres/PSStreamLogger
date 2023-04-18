@@ -7,21 +7,43 @@ using Serilog.Templates;
 
 namespace PSStreamLoggerModule
 {
+    /// <summary>
+    /// <para type="synopsis">Creates a new file logger that writes log events to plain text files.</para>
+    /// <para type="description">A logger based on the Serilog.Sinks.File that writes log events to plain text files.</para>
+    /// <para type="type">Cmdlet</para>
+    /// </summary>
     [Cmdlet(VerbsCommon.New, "FileLogger")]
     public class NewFileLogger : NewTextLoggerCmldet
     {
+        /// <summary>
+        /// <para type="description">The log file path.</para>
+        /// <para type="description">For relative paths the current working directory will be used as root path.</para>
+        /// </summary>
         [Parameter(Mandatory = true)]
         public string? FilePath { get; set; }
 
+        /// <summary>
+        /// <para type="description">The file size limit in bytes (default = 1GB).</para>
+        /// </summary>
         [Parameter()]
         public int? FileSizeLimit { get; set; } = 1073741824; // 1GB
 
+        /// <summary>
+        /// <para type="description">The maximum number of log files to keep if rolling file is used. Older log files will automatically be cleaned up.</para>
+        /// </summary>
         [Parameter()]
         public int? RetainedFileCountLimit { get; set; } = 31;
 
+        /// <summary>
+        /// <para type="description">Whether or not to create a new log file when the file size limit is reached.</para>
+        /// </summary>
         [Parameter()]
         public SwitchParameter RollOnFileSizeLimit { get; set; }
 
+        /// <summary>
+        /// <para type="description">The rolling time interval to use.</para>
+        /// <para type="description">Infinite = File will not roll (no new log file will be created) on a time interval.</para>
+        /// </summary>
         [Parameter()]
         public RollingInterval RollingInterval { get; set; } = RollingInterval.Infinite;
 

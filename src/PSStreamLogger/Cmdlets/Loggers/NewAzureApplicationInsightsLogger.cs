@@ -12,12 +12,23 @@ using Serilog.Templates;
 
 namespace PSStreamLoggerModule
 {
+    /// <summary>
+    /// <para type="synopsis">Creates a new logger that writes log events to an Azure Application Insights instance.</para>
+    /// <para type="description">A logger based on the Serilog.Sinks.ApplicationInsights that writes log events to an Azure Application Insights instance.</para>
+    /// <para type="type">Cmdlet</para>
+    /// </summary>
     [Cmdlet(VerbsCommon.New, "AzureApplicationInsightsLogger")]
     public class NewAzureApplicationInsightsLogger : NewLoggerCmdlet
     {
+        /// <summary>
+        /// <para type="description">The connection string for the target Azure Application Insights instance.</para>
+        /// </summary>
         [Parameter(Mandatory = true)]
         public string? ConnectionString { get; set; }
 
+        /// <summary>
+        /// <para type="description">An optional hashtable containing additional properties to add to each log event (key = log property name, value = log property value).</para>
+        /// </summary>
         [Parameter()]
         public Hashtable? Properties { get; set; }
 

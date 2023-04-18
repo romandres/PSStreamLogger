@@ -8,7 +8,7 @@ namespace PSStreamLoggerModule
 {
     /// <summary>
     /// <para type="synopsis">Creates a new console logger that writes log events to the console.</para>
-    /// <para type="description">A console logger (based on the Serilog.Sinks.Console) writes log events to the console via standard output.</para>
+    /// <para type="description">A logger based on the Serilog.Sinks.Console that writes log events to the console via standard output.</para>
     /// <para type="type">Cmdlet</para>
     /// </summary>
     [Cmdlet(VerbsCommon.New, "ConsoleLogger")]
