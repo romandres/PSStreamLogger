@@ -32,10 +32,10 @@ namespace PSStreamLoggerModule
         public Logger[]? Loggers { get; set; }
 
         /// <summary>
-        /// <para type="description">The mode to execute the script block. NewScope executes the script block in a new scope (default), CurrentScope executes it in the current scope (in the same scope this Cmdlet is executed from) and NewRunspace executes it in a new PowerShell runspace.</para>
+        /// <para type="description">The mode to execute the script block in. NewScope executes the script block in a new scope (default), CurrentScope executes it in the current scope (in the same scope this Cmdlet is executed from) and NewRunspace executes it in a new PowerShell runspace.</para>
         /// </summary>
         [Parameter]
-        public RunMode RunMode { get; set; } = RunMode.NewScope;
+        public ExecutionMode ExecutionMode { get; set; } = ExecutionMode.NewScope;
 
         /// <summary>
         /// <para type="description">Disable the automatic PowerShell stream configuration. based on the lowest log level.</para>
@@ -96,7 +96,7 @@ namespace PSStreamLoggerModule
 
             var streamConfiguration = !DisableStreamConfiguration.IsPresent ? new PSStreamConfiguration(minimumLogLevel) : null;
 
-            if (RunMode != RunMode.NewRunspace)
+            if (ExecutionMode != ExecutionMode.NewRunspace)
             {
                 StringBuilder logLevelCommandBuilder = new StringBuilder();
                 
@@ -110,7 +110,7 @@ namespace PSStreamLoggerModule
 
                 exec = () =>
                 {
-                    return InvokeCommand.InvokeScript($"{logLevelCommandBuilder}& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger $input[0]", RunMode == RunMode.NewScope, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
+                    return InvokeCommand.InvokeScript($"{logLevelCommandBuilder}& {{ {ScriptBlock} {Environment.NewLine}}} *>&1 | PSStreamLogger\\Out-PSStreamLogger -DataRecordLogger $input[0]", ExecutionMode == ExecutionMode.NewScope, PipelineResultTypes.Output, new List<object>() { dataRecordLogger! });
                 };
             }
             else
@@ -158,7 +158,7 @@ namespace PSStreamLoggerModule
             }
 
             scriptLogger = loggerFactory.CreateLogger("PSScriptBlock");
-            dataRecordLogger = new DataRecordLogger(scriptLogger, RunMode == RunMode.NewRunspace ? 0 : 2);
+            dataRecordLogger = new DataRecordLogger(scriptLogger, ExecutionMode == ExecutionMode.NewRunspace ? 0 : 2);
         }
     }
 }
