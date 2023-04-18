@@ -23,6 +23,6 @@ namespace PSStreamLoggerModule
 
         internal Serilog.Events.LogEventLevel MinimumLogLevel { get; private set; }
         
-        public Serilog.Core.Logger SerilogLogger { get; private set; }
+        internal Serilog.Core.Logger? SerilogLogger { get; set; }
     }
 }
