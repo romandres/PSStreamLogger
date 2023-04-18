@@ -3,9 +3,6 @@ using Serilog.Events;
 
 namespace PSStreamLoggerModule
 {
-    /// <summary>
-    /// <para type="description">A PSStreamLogger logger.</para>
-    /// </summary>
     public class Logger
     {
         public const LogEventLevel DefaultMinimumLogLevel = LogEventLevel.Information;
