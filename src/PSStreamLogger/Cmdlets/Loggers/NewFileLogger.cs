@@ -26,7 +26,7 @@ namespace PSStreamLoggerModule
         /// <para type="description">The file size limit in bytes (default = 1GB).</para>
         /// </summary>
         [Parameter()]
-        public int? FileSizeLimit { get; set; } = 1073741824; // 1GB
+        public long? FileSizeLimit { get; set; } = 1073741824; // 1GB
 
         /// <summary>
         /// <para type="description">The maximum number of log files to keep if rolling file is used. Older log files will automatically be cleaned up.</para>
