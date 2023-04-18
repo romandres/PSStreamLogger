@@ -37,8 +37,8 @@ jobs:
 
     - name: Arrange manifest files
       run: |
-        Move-Item -Path "./module/coreclr/*" -Destination "./module" -Include @("*.psm1", "*.psd1")
-        Remove-Item -Path "./module/fullclr/*" -Include @("*.psm1", "*.psd1")
+        Move-Item -Path "./module/fullclr/*" -Destination "./module" -Include @("*.psm1", "*.psd1", "*.dll-Help.xml")
+        Remove-Item -Path "./module/coreclr/*" -Include @("*.psm1", "*.psd1", "*.dll-Help.xml")
       shell: pwsh
 
     - name: Create archive

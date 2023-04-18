@@ -12,23 +12,27 @@ using Serilog.Templates;
 
 namespace PSStreamLoggerModule
 {
-    [Cmdlet(VerbsCommon.New, "AzureApplicationInsightsLogger")]
-    public class NewAzureApplicationInsightsLogger : PSCmdlet
+    /// <summary>
+    /// <para type="synopsis">Creates a new logger that writes log events to an Azure Application Insights instance.</para>
+    /// <para type="description">A logger based on the Serilog.Sinks.ApplicationInsights that writes log events to an Azure Application Insights instance.</para>
+    /// <para type="type">Cmdlet</para>
+    /// </summary>
+    [Cmdlet(VerbsCommon.New, Name)]
+    public class NewAzureApplicationInsightsLogger : NewLoggerCmdlet
     {
+        private const string Name = "AzureApplicationInsightsLogger";
+        
+        /// <summary>
+        /// <para type="description">The connection string for the target Azure Application Insights instance.</para>
+        /// </summary>
         [Parameter(Mandatory = true)]
         public string? ConnectionString { get; set; }
 
+        /// <summary>
+        /// <para type="description">An optional hashtable containing additional properties to add to each log event (key = log property name, value = log property value).</para>
+        /// </summary>
         [Parameter()]
         public Hashtable? Properties { get; set; }
-
-        [Parameter()]
-        public string? FilterIncludeOnlyExpression { get; set; }
-
-        [Parameter()]
-        public string? FilterExcludeExpression { get; set; }
-
-        [Parameter()]
-        public Serilog.Events.LogEventLevel MinimumLogLevel { get; set; } = Logger.DefaultMinimumLogLevel;
 
         protected override void EndProcessing()
         {
@@ -52,7 +56,7 @@ namespace PSStreamLoggerModule
                     .Filter.ByExcluding(FilterExcludeExpression);
             }
 
-            WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger()));
+            WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger(), Name));
         }
     }
 }

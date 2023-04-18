@@ -6,21 +6,16 @@ using Serilog.Templates;
 
 namespace PSStreamLoggerModule
 {
-    [Cmdlet(VerbsCommon.New, "ConsoleLogger")]
-    public class NewConsoleLogger : PSCmdlet
+    /// <summary>
+    /// <para type="synopsis">Creates a new console logger that writes log events to the console.</para>
+    /// <para type="description">A logger based on the Serilog.Sinks.Console that writes log events to the console via standard output.</para>
+    /// <para type="type">Cmdlet</para>
+    /// </summary>
+    [Cmdlet(VerbsCommon.New, Name)]
+    public class NewConsoleLogger : NewTextLoggerCmldet
     {
-        [Parameter()]
-        public string ExpressionTemplate { get; set; } = Logger.DefaultExpressionTemplate;
-
-        [Parameter()]
-        public string? FilterIncludeOnlyExpression { get; set; }
-
-        [Parameter()]
-        public string? FilterExcludeExpression { get; set; }
-
-        [Parameter()]
-        public Serilog.Events.LogEventLevel MinimumLogLevel { get; set; } = Logger.DefaultMinimumLogLevel;
-
+        private const string Name = "ConsoleLogger";
+        
         protected override void EndProcessing()
         {
             var loggerConfiguration = CreateLoggerConfiguration(ExpressionTemplate, MinimumLogLevel);
@@ -37,10 +32,10 @@ namespace PSStreamLoggerModule
                     .Filter.ByExcluding(FilterExcludeExpression);
             }
 
-            WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger()));
+            WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger(), Name));
         }
 
-        public static LoggerConfiguration CreateLoggerConfiguration(string expressionTemplate, LogEventLevel minimumLogLevel)
+        private static LoggerConfiguration CreateLoggerConfiguration(string expressionTemplate, LogEventLevel minimumLogLevel)
         {
             return new Serilog.LoggerConfiguration()
                 .MinimumLevel.Is(minimumLogLevel)
@@ -50,12 +45,12 @@ namespace PSStreamLoggerModule
                 .Enrich.FromLogContext();
         }
         
-        public static Logger CreateDefaultLogger()
+        internal static Logger CreateDefaultLogger()
         {
             var minimumLogLevel = Logger.DefaultMinimumLogLevel;
 
             var loggerConfiguration = CreateLoggerConfiguration(Logger.DefaultExpressionTemplate, Logger.DefaultMinimumLogLevel);
-            return new Logger(minimumLogLevel, loggerConfiguration.CreateLogger());
+            return new Logger(minimumLogLevel, loggerConfiguration.CreateLogger(), Name);
         }
     }
 }

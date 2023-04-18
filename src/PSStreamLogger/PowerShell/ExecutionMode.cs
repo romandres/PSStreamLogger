@@ -1,6 +1,6 @@
 namespace PSStreamLoggerModule
 {
-    public enum RunMode
+    public enum ExecutionMode
     {
         NewScope,
         CurrentScope,

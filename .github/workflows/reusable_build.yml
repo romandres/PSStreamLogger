@@ -102,7 +102,9 @@ jobs:
       shell: pwsh
 
     - name: Copy files to artifact directory
-      run: Copy-Item -Path "publish/*" -Destination "../artifact/psstreamlogger" -Include @("*.dll", "*.psd1", "*.psm1")
+      run: |
+        Copy-Item -Path "publish/*" -Destination "../artifact/psstreamlogger" -Include @("*.dll", "*.dll-Help.xml", "*.psd1", "*.psm1")
+        Copy-Item -Path "src/PSStreamLogger/bin/Release/${{ inputs.targetFramework }}/*" -Destination "../artifact/psstreamlogger" -Include @("*.dll-Help.xml")
       shell: pwsh
 
     - name: Set module version in manifest

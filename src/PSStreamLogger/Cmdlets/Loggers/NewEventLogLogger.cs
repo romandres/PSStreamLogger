@@ -6,36 +6,47 @@ using Serilog.Templates;
 
 namespace PSStreamLoggerModule
 {
-    [Cmdlet(VerbsCommon.New, "EventLogLogger")]
-    public class NewEventLogLogger : PSCmdlet
+    /// <summary>
+    /// <para type="synopsis">Creates a new event log logger that writes log events to a Windows EventLog.</para>
+    /// <para type="description">A logger based on the Serilog.Sinks.EventLog that writes log events to a Windows EventLog.</para>
+    /// <para type="type">Cmdlet</para>
+    /// </summary>
+    [Cmdlet(VerbsCommon.New, Name)]
+    public class NewEventLogLogger : NewTextLoggerCmldet
     {
+        private const string Name = "EventLogLogger";
+        
+        public NewEventLogLogger()
+        {
+            ExpressionTemplate = $"{{@m:lj}}{Environment.NewLine}{{{DataRecordLogger.PSErrorDetailsKey}}}";
+        }
+        
+        /// <summary>
+        /// <para type="description">The event source that is typically name of the application/program writing log events to the event log.</para>
+        /// <para type="description">The logger will not create the event source. The event source has to exist for the logger to work (can be created with elevated privileges using New-EventLog).</para>
+        /// </summary>
         [Parameter(Mandatory = true)]
-        public string? LogSource { get; set; }
+        public string? Source { get; set; }
 
+        /// <summary>
+        /// <para type="description">The name of the target event log to which log events are written.</para>
+        /// <para type="description">The logger will not create the event log. The event log has to exist for the logger to work (can be created with elevated privileges using New-EventLog).</para>
+        /// </summary>
         [Parameter()]
         public string? LogName { get; set; }
-
-        [Parameter()]
-        public string ExpressionTemplate { get; set; } = $"{{@m:lj}}{Environment.NewLine}{{{DataRecordLogger.PSErrorDetailsKey}}}";
-
-        [Parameter()]
-        public string? FilterIncludeOnlyExpression { get; set; }
-
-        [Parameter()]
-        public string? FilterExcludeExpression { get; set; }
-
+        
+        /// <summary>
+        /// <para type="description">A script block that provides the event ID for each log event based on the log event's properties.</para>
+        /// </summary>
         [Parameter()]
         public ScriptBlock? EventIdProvider { get; set; }
-
-        [Parameter()]
-        public Serilog.Events.LogEventLevel MinimumLogLevel { get; set; } = Logger.DefaultMinimumLogLevel;
-
+        
         protected override void EndProcessing()
         {
             var loggerConfiguration = new Serilog.LoggerConfiguration()
                 .MinimumLevel.Is(MinimumLogLevel)
                 .WriteTo.EventLog(
-                    source: LogSource,
+                    source: Source,
                     logName: LogName,
                     formatter: new ExpressionTemplate(template: ExpressionTemplate, formatProvider: CultureInfo.CurrentCulture),
                     restrictedToMinimumLevel: MinimumLogLevel,
@@ -56,7 +67,7 @@ namespace PSStreamLoggerModule
                     .Filter.ByExcluding(FilterExcludeExpression);
             }
 
-            WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger()));
+            WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger(), Name));
         }
     }
 }
