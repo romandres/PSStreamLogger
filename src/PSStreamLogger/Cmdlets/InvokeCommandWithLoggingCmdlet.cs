@@ -13,7 +13,7 @@ namespace PSStreamLoggerModule
     /// <summary>
     /// <para type="synopsis">Executes a command and logs PowerShell stream output.</para>
     /// <para type="description">Executes a command and sends data written into PowerShell streams (Verbose, Debug, Information, Warning, Error) as log events to the configured loggers.</para>
-    /// <para type="description">Output is passed through to the caller.</para>
+    /// <para type="description">Output is passed through.</para>
     /// <para type="type">Cmdlet</para>
     /// </summary>
     [Cmdlet(VerbsLifecycle.Invoke, "CommandWithLogging")]
