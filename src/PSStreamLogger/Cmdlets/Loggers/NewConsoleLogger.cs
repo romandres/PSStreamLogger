@@ -11,9 +11,11 @@ namespace PSStreamLoggerModule
     /// <para type="description">A logger based on the Serilog.Sinks.Console that writes log events to the console via standard output.</para>
     /// <para type="type">Cmdlet</para>
     /// </summary>
-    [Cmdlet(VerbsCommon.New, "ConsoleLogger")]
+    [Cmdlet(VerbsCommon.New, Name)]
     public class NewConsoleLogger : NewTextLoggerCmldet
     {
+        private const string Name = "ConsoleLogger";
+        
         protected override void EndProcessing()
         {
             var loggerConfiguration = CreateLoggerConfiguration(ExpressionTemplate, MinimumLogLevel);
@@ -30,7 +32,7 @@ namespace PSStreamLoggerModule
                     .Filter.ByExcluding(FilterExcludeExpression);
             }
 
-            WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger()));
+            WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger(), Name));
         }
 
         private static LoggerConfiguration CreateLoggerConfiguration(string expressionTemplate, LogEventLevel minimumLogLevel)
@@ -48,7 +50,7 @@ namespace PSStreamLoggerModule
             var minimumLogLevel = Logger.DefaultMinimumLogLevel;
 
             var loggerConfiguration = CreateLoggerConfiguration(Logger.DefaultExpressionTemplate, Logger.DefaultMinimumLogLevel);
-            return new Logger(minimumLogLevel, loggerConfiguration.CreateLogger());
+            return new Logger(minimumLogLevel, loggerConfiguration.CreateLogger(), Name);
         }
     }
 }

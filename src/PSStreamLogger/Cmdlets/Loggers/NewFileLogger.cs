@@ -12,9 +12,11 @@ namespace PSStreamLoggerModule
     /// <para type="description">A logger based on the Serilog.Sinks.File that writes log events to plain text files.</para>
     /// <para type="type">Cmdlet</para>
     /// </summary>
-    [Cmdlet(VerbsCommon.New, "FileLogger")]
+    [Cmdlet(VerbsCommon.New, Name)]
     public class NewFileLogger : NewTextLoggerCmldet
     {
+        private const string Name = "FileLogger";
+        
         /// <summary>
         /// <para type="description">The log file path (absolute or relative).</para>
         /// <para type="description">For relative paths the current working directory will be used as the root path.</para>
@@ -79,7 +81,7 @@ namespace PSStreamLoggerModule
                     .Filter.ByExcluding(FilterExcludeExpression);
             }
 
-            WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger()));
+            WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger(), Name));
         }
     }
 }

@@ -11,9 +11,11 @@ namespace PSStreamLoggerModule
     /// <para type="description">A logger based on the Serilog.Sinks.EventLog that writes log events to a Windows EventLog.</para>
     /// <para type="type">Cmdlet</para>
     /// </summary>
-    [Cmdlet(VerbsCommon.New, "EventLogLogger")]
+    [Cmdlet(VerbsCommon.New, Name)]
     public class NewEventLogLogger : NewTextLoggerCmldet
     {
+        private const string Name = "EventLogLogger";
+        
         public NewEventLogLogger()
         {
             ExpressionTemplate = $"{{@m:lj}}{Environment.NewLine}{{{DataRecordLogger.PSErrorDetailsKey}}}";
@@ -65,7 +67,7 @@ namespace PSStreamLoggerModule
                     .Filter.ByExcluding(FilterExcludeExpression);
             }
 
-            WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger()));
+            WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger(), Name));
         }
     }
 }

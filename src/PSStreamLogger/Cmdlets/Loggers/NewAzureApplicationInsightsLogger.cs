@@ -17,9 +17,11 @@ namespace PSStreamLoggerModule
     /// <para type="description">A logger based on the Serilog.Sinks.ApplicationInsights that writes log events to an Azure Application Insights instance.</para>
     /// <para type="type">Cmdlet</para>
     /// </summary>
-    [Cmdlet(VerbsCommon.New, "AzureApplicationInsightsLogger")]
+    [Cmdlet(VerbsCommon.New, Name)]
     public class NewAzureApplicationInsightsLogger : NewLoggerCmdlet
     {
+        private const string Name = "AzureApplicationInsightsLogger";
+        
         /// <summary>
         /// <para type="description">The connection string for the target Azure Application Insights instance.</para>
         /// </summary>
@@ -54,7 +56,7 @@ namespace PSStreamLoggerModule
                     .Filter.ByExcluding(FilterExcludeExpression);
             }
 
-            WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger()));
+            WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger(), Name));
         }
     }
 }

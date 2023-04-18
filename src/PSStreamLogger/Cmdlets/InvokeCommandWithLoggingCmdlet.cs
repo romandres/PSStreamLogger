@@ -156,7 +156,7 @@ namespace PSStreamLoggerModule
             {
                 if (logger.SerilogLogger is null)
                 {
-                    throw new InvalidOperationException($"Logger was disposed and cannot be reused");
+                    throw new InvalidOperationException($"Logger {logger.Name} was disposed and cannot be reused");
                 }
                 
                 if (logger.MinimumLogLevel < minimumLogLevel)
