@@ -33,7 +33,7 @@ namespace PSStreamLoggerModule
             WriteObject(new Logger(MinimumLogLevel, loggerConfiguration.CreateLogger()));
         }
 
-        public static LoggerConfiguration CreateLoggerConfiguration(string expressionTemplate, LogEventLevel minimumLogLevel)
+        private static LoggerConfiguration CreateLoggerConfiguration(string expressionTemplate, LogEventLevel minimumLogLevel)
         {
             return new Serilog.LoggerConfiguration()
                 .MinimumLevel.Is(minimumLogLevel)
@@ -43,7 +43,7 @@ namespace PSStreamLoggerModule
                 .Enrich.FromLogContext();
         }
         
-        public static Logger CreateDefaultLogger()
+        internal static Logger CreateDefaultLogger()
         {
             var minimumLogLevel = Logger.DefaultMinimumLogLevel;
 
