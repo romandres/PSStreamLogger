@@ -13,22 +13,13 @@ using Serilog.Templates;
 namespace PSStreamLoggerModule
 {
     [Cmdlet(VerbsCommon.New, "AzureApplicationInsightsLogger")]
-    public class NewAzureApplicationInsightsLogger : PSCmdlet
+    public class NewAzureApplicationInsightsLogger : NewLoggerCmdlet
     {
         [Parameter(Mandatory = true)]
         public string? ConnectionString { get; set; }
 
         [Parameter()]
         public Hashtable? Properties { get; set; }
-
-        [Parameter()]
-        public string? FilterIncludeOnlyExpression { get; set; }
-
-        [Parameter()]
-        public string? FilterExcludeExpression { get; set; }
-
-        [Parameter()]
-        public Serilog.Events.LogEventLevel MinimumLogLevel { get; set; } = Logger.DefaultMinimumLogLevel;
 
         protected override void EndProcessing()
         {

@@ -7,29 +7,22 @@ using Serilog.Templates;
 namespace PSStreamLoggerModule
 {
     [Cmdlet(VerbsCommon.New, "EventLogLogger")]
-    public class NewEventLogLogger : PSCmdlet
+    public class NewEventLogLogger : NewTextLoggerCmldet
     {
+        public NewEventLogLogger()
+        {
+            ExpressionTemplate = $"{{@m:lj}}{Environment.NewLine}{{{DataRecordLogger.PSErrorDetailsKey}}}";
+        }
+        
         [Parameter(Mandatory = true)]
         public string? LogSource { get; set; }
 
         [Parameter()]
         public string? LogName { get; set; }
-
-        [Parameter()]
-        public string ExpressionTemplate { get; set; } = $"{{@m:lj}}{Environment.NewLine}{{{DataRecordLogger.PSErrorDetailsKey}}}";
-
-        [Parameter()]
-        public string? FilterIncludeOnlyExpression { get; set; }
-
-        [Parameter()]
-        public string? FilterExcludeExpression { get; set; }
-
+        
         [Parameter()]
         public ScriptBlock? EventIdProvider { get; set; }
-
-        [Parameter()]
-        public Serilog.Events.LogEventLevel MinimumLogLevel { get; set; } = Logger.DefaultMinimumLogLevel;
-
+        
         protected override void EndProcessing()
         {
             var loggerConfiguration = new Serilog.LoggerConfiguration()

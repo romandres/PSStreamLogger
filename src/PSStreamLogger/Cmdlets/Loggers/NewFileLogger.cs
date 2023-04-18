@@ -8,7 +8,7 @@ using Serilog.Templates;
 namespace PSStreamLoggerModule
 {
     [Cmdlet(VerbsCommon.New, "FileLogger")]
-    public class NewFileLogger : PSCmdlet
+    public class NewFileLogger : NewTextLoggerCmldet
     {
         [Parameter(Mandatory = true)]
         public string? FilePath { get; set; }
@@ -24,18 +24,6 @@ namespace PSStreamLoggerModule
 
         [Parameter()]
         public RollingInterval RollingInterval { get; set; } = RollingInterval.Infinite;
-
-        [Parameter()]
-        public string ExpressionTemplate { get; set; } = Logger.DefaultExpressionTemplate;
-
-        [Parameter()]
-        public string? FilterIncludeOnlyExpression { get; set; }
-
-        [Parameter()]
-        public string? FilterExcludeExpression { get; set; }
-
-        [Parameter()]
-        public Serilog.Events.LogEventLevel MinimumLogLevel { get; set; } = Logger.DefaultMinimumLogLevel;
 
         protected override void EndProcessing()
         {
