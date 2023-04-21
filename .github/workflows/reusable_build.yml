@@ -79,7 +79,7 @@ jobs:
         dotnet-version: 6.0.x
 
     - name: Publish
-      run: dotnet publish src/PSStreamLogger.sln -c Release -f ${{ inputs.targetFramework }} -o "publish" --version-suffix "${{ env.VERSION_SUFFIX }}"
+      run: dotnet publish PSStreamLogger.sln -c Release -f ${{ inputs.targetFramework }} -o "publish" --version-suffix "${{ env.VERSION_SUFFIX }}"
 
     - id: getVersion
       name: Get final version from assembly
@@ -104,7 +104,7 @@ jobs:
     - name: Copy files to artifact directory
       run: |
         Copy-Item -Path "publish/*" -Destination "../artifact/psstreamlogger" -Include @("*.dll", "*.dll-Help.xml", "*.psd1", "*.psm1")
-        Copy-Item -Path "src/PSStreamLogger/bin/Release/${{ inputs.targetFramework }}/*" -Destination "../artifact/psstreamlogger" -Include @("*.dll-Help.xml")
+        Copy-Item -Path "src/PSModule/bin/Release/${{ inputs.targetFramework }}/*" -Destination "../artifact/psstreamlogger" -Include @("*.dll-Help.xml")
       shell: pwsh
 
     - name: Set module version in manifest
