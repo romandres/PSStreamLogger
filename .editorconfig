@@ -11,3 +11,6 @@ dotnet_diagnostic.CA1848.severity = none
 
 # CA1819: Properties should not return arrays
 dotnet_diagnostic.CA1819.severity = none
+
+# CS1591: Missing XML comment for publicly visible type
+dotnet_diagnostic.CS1591.severity = none
